@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <title>Главная</title>
+</head>
+<body>
+    <h1>Страница 1</h1>
+    <ul>
+        <li><a href="baza.html">Страница 1</a></li>
+        <li><a href="dem2.html">Страница 2</a></li>
+        <li><a href="dem3.html">Страница 3</a></li>
+    </ul>
+<img src="smile.png" alt="Смайлик" width="300" height="100">
+<img src="smile.png" alt="Смайлик" width="100" height="100"> 
+<table border="1" width="400" height="300">
+    <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td>6</td>
+        <td>7</td>
+        <td>8</td>
+        <td>9</td>
+    </tr>
+    <tr>
+        <td>a</td>
+        <td>b</td>
+        <td>c</td>
+        <td>d</td>
+        <td>e</td>
+    </tr>
+</table>
+<table border="1" width="300">
+    <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+    </tr>
+    <tr>
+        <td>Apples</td>
+        <td>100</td>
+        <td>5kg</td>
+    </tr>
+    <tr>
+        <td>Oranges</td>
+        <td>200</td>
+        <td>6kg</td>
+    </tr>
+    <tr>
+        <td>Bananas</td>
+        <td>300</td>
+        <td>7kg</td>
+    </tr>
+</table>
+<table border="1">
+	<tr>
+		<td>1</td>
+		<td>2</td>
+		<td>3</td>
+	</tr>
+	<tr>
+		<td>4</td>
+		<td>5</td>
+		<td>6</td>
+	</tr>
+	<tr>
+		<td>7</td>
+		<td>8</td>
+		<td>9</td>
+	</tr>
+</table>
+<table class="tabl-table">
+	<tr>
+		<td>John</td>
+		<td>Smith</td>
+		<td>200$</td>
+	</tr>
+	<tr>
+		<td>Nick</td>
+		<td>Mayers</td>
+		<td>300$</td>
+	</tr>
+	<tr>
+		<td>Alex</td>
+		<td>Jonson</td>
+		<td>400$</td>
+	</tr>
+</table>
+<p class="text-align">
+	This is a paragraph with text.
+<p class="text-align2">
+	This is a paragraph with text.
+</p>
+<table class="tab-table">
+	<tr>
+		<th>Name</th>
+		<th>Surname</th>
+		<th>Salary</th>
+	</tr>
+	<tr>
+		<td>John</td>
+		<td>Smith</td>
+		<td>200$</td>
+	</tr>
+	<tr>
+		<td>Nick</td>
+		<td>Mayers</td>
+		<td>300$</td>
+	</tr>
+	<tr>
+		<td>Alex</td>
+		<td>Jonson</td>
+		<td>400$</td>
+	</tr>
+</table>
+
+<p class="just">
+	Lorem ipsum dolor sit amet, consectetur adipiscing elitorire aenean a dapibus magna, ac interdum nisl. Suspendisse egetil fringilla nibh, eu commodo arcu. Donec lacinia tempor velite sed tincidunt. Aliquam porttitor nulla purus, vel vulputater ipsum faucibus sed. Phasellus sodales, lorem vel cursus vehi ante purus lacini dui, interdum fringilla massa eros ut duir nullam et ipsum ex. Donec ut iaculis massa. Duis vel ulamcor per dolor. Suspendisse tristique dolor risus, nec laoreet du aliquet maximus. Maecenas tempus congue arcu, si amet auctor dui efficitur in. Proin ac auctor nisi. Phasellus luctus eur neque sollicitudin rutrum. Curabitur ipsum justo, sodales in lectus non, molestie ullamcorper elit. Orciro varius natoque penatibus et magnis dis parturient montes, nascetur ridiclus mus. Nullam euismod eu metus non malesuada. Quisque quisolor.
+</p>
+
+
+
+
+
+<h1 class="h1test">Main page title</h1>
+<table class="test-table">
+	<tr>
+		<th>Product</th>
+		<th>Price</th>
+		<th>Quantity</th>
+	</tr>
+	<tr>
+		<td>Apples</td>
+		<td>100</td>
+		<td>5kg</td>
+	</tr>
+	<tr>
+		<td>Oranges</td>
+		<td>200</td>
+		<td>6kg</td>
+	</tr>
+	<tr>
+		<td>Bananas</td>
+		<td>300</td>
+		<td>7kg</td>
+	</tr>
+</table>
+
+<h2 class="h2test">Secondary heading 1</h2>
+<p class="ptest">
+	Lorem ipsum dolor sit amet, consectetur 
+		adipiscing elitorire 
+	aenean a dapibus magna, ac interdum 
+		nisl. Suspendisse egetil 
+	fringilla nibh, eu commodo arcu. 
+		Donec lacinia tempor velite 
+	sed tincidunt. Aliquam porttitor 
+		nulla purus, vel vulputater 
+	ipsum faucibus sed. Phasellus 
+		sodales, lorem vel cursus vehi 
+	ante purus lacini dui, interdum fringilla 
+		massa eros ut duir. 
+</p>
+<p class="ptest">
+	Lorem ipsum dolor sit amet, consectetur 
+		adipiscing elitorire 
+	aenean a dapibus magna, ac interdum 
+		nisl. Suspendisse egetil 
+	fringilla nibh, eu commodo arcu. 
+		Donec lacinia tempor velite 
+	sed tincidunt. Aliquam porttitor 
+		nulla purus, vel vulputater 
+	ipsum faucibus sed. Phasellus 
+		sodales, lorem vel cursus vehi 
+	ante purus lacini dui, interdum fringilla 
+		massa eros ut duir. 
+</p>
+
+<h2 class="h2test">Secondary heading 2</h2>
+<p class="ptest">
+	Lorem ipsum dolor sit amet, consectetur 
+		adipiscing elitorire 
+	aenean a dapibus magna, ac interdum 
+		nisl. Suspendisse egetil 
+	fringilla nibh, eu commodo arcu. 
+		Donec lacinia tempor velite 
+	sed tincidunt. Aliquam porttitor 
+		nulla purus, vel vulputater 
+	ipsum faucibus sed. Phasellus 
+		sodales, lorem vel cursus vehi 
+	ante purus lacini dui, interdum fringilla 
+		massa eros ut duir. 
+</p>
+<p class="ptest">
+	Lorem ipsum dolor sit amet, consectetur 
+		adipiscing elitorire 
+	aenean a dapibus magna, ac interdum 
+		nisl. Suspendisse egetil 
+	fringilla nibh, eu commodo arcu. 
+		Donec lacinia tempor velite 
+	sed tincidunt. Aliquam porttitor 
+		nulla purus, vel vulputater 
+	ipsum faucibus sed. Phasellus 
+		sodales, lorem vel cursus vehi 
+	ante purus lacini dui, interdum fringilla 
+		massa eros ut duir. 
+</p>
+
+<h2 class="h2test">Secondary heading 3</h2>
+<table class="test2-table">
+	<tr>
+		<td>cell 1</td>
+		<td>cell 2</td>
+		<td>cell 3</td>
+	</tr>
+	<tr>
+		<td>cell 4</td>
+		<td>cell 5</td>
+		<td>cell 6</td>
+	</tr>
+	<tr>
+		<td>cell 7</td>
+		<td>cell 8</td>
+		<td>cell 9</td>
+	</tr>
+</table>
+<h2 class="h2font">Title</h2>
+<p class="pfont">
+	This is a paragraph with text.
+</p>
+
+
+<table class="font-table">
+	<tr>
+		<th>Name</th>
+		<th>Surname</th>
+		<th>Salary</th>
+	</tr>
+	<tr>
+		<td>John</td>
+		<td>Smith</td>
+		<td>200$</td>
+	</tr>
+	<tr>
+		<td>Nick</td>
+		<td>Mayers</td>
+		<td>300$</td>
+	</tr>
+	<tr>
+		<td>Alex</td>
+		<td>Jonson</td>
+		<td>400$</td>
+	</tr>
+</table>
+<p class="kurs">
+	This is a paragraph with text.
+</p>
+<p class="size">
+	This is a paragraph with text.
+</p>
+
+
+
+<h1 class="h1size">Main page title</h1>
+<p class="psize">
+	This is a paragraph with text.
+</p>
+
+<h2 class="h2size">Secondary heading 1</h2>
+<p class="psize">
+	This is a paragraph with text.
+</p>
+<p class="psize">
+	This is a paragraph with text.
+</p>
+
+<h2 class="h2size">Secondary heading 2</h2>
+<p class="psize">
+	This is a paragraph with text.
+</p>
+<p class="psize">
+	This is a paragraph with text.
+</p>
+<p class="family">
+	This is a paragraph with text.
+</p>
+<p class="some">
+	Lorem ipsum dolor sit amet, consectetur adipiscing elitorire aenean a dapibus magna, ac interdum nisl. Suspendisse egetil fringilla nibh, eu commodo arcu. Donec lacinia tempor velite sed tincidunt. Aliquam porttitor nulla purus, vel vulputater ipsum faucibus sed. Phasellus sodales, lorem vel cursus vehi ante purus lacini dui, interdum fringilla massa eros ut duir nullam et ipsum ex. Donec ut iaculis massa. Duis vel ulamcor per dolor. Suspendisse tristique dolor risus, nec laoreet du aliquet maximus. Maecenas tempus congue arcu, si amet auctor dui efficitur in. Proin ac auctor nisi. Phasellus luctus eur neque sollicitudin rutrum. Curabitur ipsum justo, sodales in lectus non, molestie ullamcorper elit. Orciro varius natoque penatibus et magnis dis parturient montes, nascetur ridiclus mus. Nullam euismod eu metus non malesuada. Quisque quisolor.
+</p>
+<p calss="psome">
+	Lorem ipsum dolor sit amet, consectetur adipiscing elitorire aenean a dapibus magna, ac interdum nisl. Suspendisse egetil fringilla nibh, eu commodo arcu. Donec lacinia tempor velite sed tincidunt. Aliquam porttitor nulla purus, vel vulputater ipsum faucibus sed. Phasellus sodales, lorem vel cursus vehi ante purus lacini dui, interdum fringilla massa eros ut duir nullam et ipsum ex. Donec ut iaculis massa. Duis vel ulamcor per dolor. Suspendisse tristique dolor risus, nec laoreet du aliquet maximus. Maecenas tempus congue arcu, si amet auctor dui efficitur in. Proin ac auctor nisi. Phasellus luctus eur neque sollicitudin rutrum. Curabitur ipsum justo, sodales in lectus non, molestie ullamcorper elit. Orciro varius natoque penatibus et magnis dis parturient montes, nascetur ridiclus mus. Nullam euismod eu metus non malesuada. Quisque quisolor.
+</p>
+
+<p class="redstr">
+	some long text
+</p>
+<p class="redstr">
+	some long text
+</p>
+<p class="redstr">
+	some long text
+</p>
+
+<p class="dec">
+	Lorem ipsum dolor sit amet.
+</p>
+<p class="pdec">
+	Lorem ipsum dolor sit amet.
+</p>
+<p class="line-through">
+	Lorem ipsum dolor sit amet.
+</p>
+<a href="">link</a>
+
+
+
+
+
+</body>
+</html>
