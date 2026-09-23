@@ -92,29 +92,92 @@
 <!-- ═══════════════════════════════════════════════
      👾 ПАКМАН (уже перекрашен в неон)
      ═══════════════════════════════════════════════ -->
+
+
+<!-- ═══════════════════════════════════════════════
+     🎮 АРКАДНЫЕ КОММИТЫ
+     ═══════════════════════════════════════════════ -->
+
 <h2>
-  <img src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff" />
+  <img
+    src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff"
+    alt="Мои коммиты"
+  />
 </h2>
 
-<!-- 🫐 Пакман с голубикой -->
+<!-- ═══════════════════════════════════════════════
+     👾 PACMAN + 🫐 BLUEBERRY
+     ═══════════════════════════════════════════════ -->
+
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)"
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg?v=14">
-    <source media="(prefers-color-scheme: light)"
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=14">
-    <img alt="pacman"
-         src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=14">
+
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg?v=20"
+    />
+
+    <source
+      media="(prefers-color-scheme: light)"
+      srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=20"
+    />
+
+    <img
+      src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=20"
+      alt="Pacman eating blueberry contributions"
+      width="100%"
+    />
+
   </picture>
 </p>
 
-<!-- 🐍 Неоновая змейка с грибами -->
 <p align="center">
-  <img alt="neon snake" width="100%"
-       src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/neon-snake.svg?v=14">
+  <b>🫐 My contributions — powered by blueberries</b>
 </p>
 
+<!-- ═══════════════════════════════════════════════
+     🐍 NEON SNAKE
+     ═══════════════════════════════════════════════ -->
 
+<p align="center">
+  <img
+    src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/neon-snake.svg?v=20"
+    alt="Neon snake eating mushrooms"
+    width="100%"
+  />
+</p>
+
+<p align="center">
+  <b>🐍 Neon Snake</b>
+  <br>
+  <sub>
+    A randomly generated neon snake explores the entire field,
+    hunting glowing mushrooms.
+  </sub>
+</p>
+
+<!-- ═══════════════════════════════════════════════
+     ✨ АРКАДНЫЙ СТАТУС
+     ═══════════════════════════════════════════════ -->
+
+<p align="center">
+
+  <img
+    src="https://img.shields.io/badge/🫐_BLUEBERRIES-NEON-00d4ff?style=for-the-badge&labelColor=05070f"
+    alt="Blueberries"
+  />
+
+  <img
+    src="https://img.shields.io/badge/🐍_SNAKE-RANDOM_PATH-00d4ff?style=for-the-badge&labelColor=05070f"
+    alt="Random Snake"
+  />
+
+  <img
+    src="https://img.shields.io/badge/🍄_MUSHROOMS-SPAWNING-00d4ff?style=for-the-badge&labelColor=05070f"
+    alt="Mushrooms"
+  />
+
+</p>
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
      ═══════════════════════════════════════════════ -->
