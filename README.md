@@ -3,13 +3,12 @@
      ═══════════════════════════════════════════════ -->
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/main/avatar.png">
-  <img src="https://github.com/Idemsk8.png" width="140" 
+<p align="center">
+  <img src="avatar.png" width="140" 
        style="border-radius: 50%; border: 3px solid #00d4ff; 
-              box-shadow: 0 0 20px #00d4ff, 0 0 40px rgba(0,212,255,0.5);" />
-</picture>
-
+              box-shadow: 0 0 20px #00d4ff, 0 0 40px rgba(0,212,255,0.5);" 
+       alt="avatar" />
+</p>
 <h1>
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=32&pause=1000&color=00D4FF&center=true&vCenter=true&width=600&lines=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82%2C+%D1%8F+Idemsk8+%F0%9F%91%8B;Python+%C2%B7+Go+%C2%B7+Docker;Backend+Developer" 
        alt="Typing SVG" />
