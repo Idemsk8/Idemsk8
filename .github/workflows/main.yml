@@ -1,4 +1,4 @@
-name: generate pacman game
+name: generate arcade graphs
 
 on:
   schedule:
@@ -16,14 +16,29 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      # 1. Генерируем оригинальный SVG
+      # ═══════════════════════════════════════
+      # 🎮 ПАКМАН
+      # ═══════════════════════════════════════
       - name: generate pacman-contribution-graph.svg
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
 
-      # 2. Перекрашиваем все цвета в синий неон
-      - name: Recolor SVG to blue neon
+      # ═══════════════════════════════════════
+      # 🐍 ЗМЕЙКА (неоновая)
+      # ═══════════════════════════════════════
+      - name: generate snake.svg
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/snake.svg?color_snake=#00d4ff&color_dots=#05070f,#0a2a4d,#0066cc,#00aaff,#00d4ff
+            dist/snake-dark.svg?color_snake=#00d4ff&color_dots=#05070f,#0a2a4d,#0066cc,#00aaff,#00d4ff
+
+      # ═══════════════════════════════════════
+      # 🎨 ПЕРЕКРАСКА ПАКМАНА В НЕОН
+      # ═══════════════════════════════════════
+      - name: Recolor Pacman to blue neon
         run: |
           python3 - << 'EOF'
           import re
@@ -36,20 +51,18 @@ jobs:
 
           def to_neon(hex_color):
               h = hex_color.lstrip('#').lower()
-              # Белый оставляем — глаза, фон
               if h in ('ffffff', 'fefefe', 'fdfdfd', 'f0f0f0'):
                   return '#' + h
-              # Почти чёрный → глубокий синий фон
               if brightness(h) < 15:
                   return '#05070f'
               b = brightness(h)
-              if b < 60:  return '#0a1122'   # тёмно-синий фон
-              if b < 110: return '#0a2a4d'   # тёмные клетки
-              if b < 160: return '#0066cc'   # средний синий
-              if b < 210: return '#00aaff'   # яркий синий
-              return '#00d4ff'               # неон (Пакман, точки)
+              if b < 60:  return '#0a1122'
+              if b < 110: return '#0a2a4d'
+              if b < 160: return '#0066cc'
+              if b < 210: return '#00aaff'
+              return '#00d4ff'
 
-          for svg in Path('dist').glob('*.svg'):
+          for svg in Path('dist').glob('pacman*.svg'):
               content = svg.read_text()
               colors = set(re.findall(r'#[0-9a-fA-F]{6}', content))
               for c in colors:
@@ -58,8 +71,10 @@ jobs:
               print(f'✅ Recolored: {svg.name}')
           EOF
 
-      # 3. Публикуем перекрашенный SVG в ветку output
-      - name: push pacman-contribution-graph.svg to the output branch
+      # ═══════════════════════════════════════
+      # 📤 ПУБЛИКАЦИЯ В ВЕТКУ output
+      # ═══════════════════════════════════════
+      - name: push SVGs to the output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
           target_branch: output
