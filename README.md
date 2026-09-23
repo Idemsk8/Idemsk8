@@ -96,7 +96,7 @@
   <img src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff" />
 </h2>
 
-<!-- 🎮 Пакман -->
+<!-- 🫐 Пакман с голубикой -->
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" 
@@ -108,11 +108,10 @@
   </picture>
 </p>
 
-<!-- 🍄🐍 Неоновая змейка с грибами -->
+<!-- 🍄 Змейка -->
 <p align="center">
-  <img alt="neon snake with mushrooms" width="100%"
+  <img alt="neon snake" width="100%"
        src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/custom-snake.svg">
-</p>
 </p>
 <!-- 📊 Запасной график вкладов (если что-то не сработает) -->
 <p align="center">
