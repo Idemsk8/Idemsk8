@@ -41,7 +41,7 @@ jobs:
           CELL, GAP  = 11, 2
           SNAKE_LEN  = 8
           NUM_DOTS   = 20
-          SPEED      = 0.20          # секунд на одну клетку
+          SPEED      = 20.20          # секунд на одну клетку
 
           BG     = "#05070f"
           CELLBG = "#0a1122"
