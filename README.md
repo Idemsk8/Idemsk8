@@ -52,7 +52,7 @@
 
 <p align="center">
   <a href="https://t.me/demsk8">
-    <img src="tg.jpg" alt="Telegram" width="60" style="margin: 0 10px; border-radius: 12px;" />
+    <img src="tg.png" alt="Telegram" width="60" style="margin: 0 10px; border-radius: 12px;" />
   </a>
   <img src="vkv.jpg" alt="ВКонтакте" width="60" style="margin: 0 10px; border-radius: 12px;" />
   </a>
