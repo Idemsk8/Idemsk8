@@ -2,247 +2,690 @@ name: generate arcade graphs
 
 on:
   schedule:
-    - cron: "0 */24 * * *"
+    - cron: "17 */12 * * *"
+
   workflow_dispatch:
+
   push:
-    branches: [ main ]
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
   generate:
-    permissions:
-      contents: write
+    name: Generate arcade animations
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
-      - name: Generate pacman
-        uses: abozanona/pacman-contribution-graph@main
+
+      # ============================================================
+      # PACMAN
+      # ============================================================
+
+      - name: Generate Pacman contribution graph
+        uses: abozanona/pacman-contribution-graph@v5.0.0
         with:
           github_user_name: ${{ github.repository_owner }}
+
+      # ============================================================
+      # PYTHON
+      # ============================================================
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.12"
 
       - name: Prepare dist
-        run: mkdir -p dist
-
-      # ═══════════════════════════════════════════════
-      #  ЗМЕЙКА v8 — новый файл neon-snake.svg
-      # ═══════════════════════════════════════════════
-      - name: Generate neon snake
+        shell: bash
         run: |
-          python3 - << 'PYEOF'
-          import random
+          rm -rf dist
+          mkdir -p dist
 
-          # ═══════════════════════════════════════════
-          #  НАСТРОЙКИ
-          # ═══════════════════════════════════════════
-          COLS, ROWS = 53, 7       # размер сетки
-          CELL, GAP  = 11, 2       # размер клетки / отступ
-          SNAKE_LEN  = 8           # сегментов у змейки
-          NUM_DOTS   = 20          # сколько грибов на поле
-          SPEED      = 0.10        # сек на 1 клетку
-          INVIS_SEC  = 30.0        # сколько гриб невидим после съедания
+      # ============================================================
+      # PACMAN → BLUEBERRY
+      # ============================================================
 
-          BG     = "#05070f"
-          CELLBG = "#0a1122"
-          MCAP   = "#00d4ff"
-          MSTEM  = "#66e6ff"
-          MDOT   = "#ffffff"
-          SNAKE  = "#00d4ff"
-          HEAD   = "#a0f0ff"
-
-          W = COLS * (CELL + GAP)
-          H = ROWS * (CELL + GAP)
-
-          # ═══════════════════════════════════════════
-          #  ПУТЬ: BOUSTROPHEDON — все клетки поля
-          #  строка 0: слева → направо
-          #  строка 1: справа → налево
-          #  строка 2: слева → направо ... и т.д.
-          # ═══════════════════════════════════════════
-          path = []
-          for row in range(ROWS):
-              if row % 2 == 0:
-                  for c in range(COLS):
-                      path.append((c, row))
-              else:
-                  for c in range(COLS - 1, -1, -1):
-                      path.append((c, row))
-
-          L = len(path)
-          DUR = L * SPEED
-          INVIS_FRAC = INVIS_SEC / DUR
-
-          # ═══════════════════════════════════════════
-          #  20 ГРИБОВ В ЛЮБОЙ КЛЕТКЕ ПОЛЯ
-          # ═══════════════════════════════════════════
-          random.seed()
-          dots = set()
-          while len(dots) < NUM_DOTS:
-              dots.add((random.randint(0, COLS - 1),
-                        random.randint(0, ROWS - 1)))
-
-          def xy(c, r):
-              return c * (CELL + GAP) + CELL / 2, r * (CELL + GAP) + CELL / 2
-
-          path_str = " ".join(
-              f'{"M" if i == 0 else "L"} {xy(c, r)[0]:.1f} {xy(c, r)[1]:.1f}'
-              for i, (c, r) in enumerate(path)
-          )
-
-          # ═══════════════════════════════════════════
-          #  СБОРКА SVG
-          # ═══════════════════════════════════════════
-          parts = [
-              f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">',
-              '<defs>',
-              '<filter id="glow" x="-100%" y="-100%" width="300%" height="300%">',
-              '<feGaussianBlur stdDeviation="2.5" result="b"/>',
-              '<feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>',
-              '</filter>',
-              '<g id="mushroom">',
-              f'<path d="M -4.5,1 A 4.5,4 0 0 1 4.5,1 Z" fill="{MCAP}"/>',
-              f'<circle cx="-2.2" cy="-1.5" r="0.8" fill="{MDOT}"/>',
-              f'<circle cx="2.2" cy="-1.5" r="0.8" fill="{MDOT}"/>',
-              f'<circle cx="0" cy="-2.8" r="0.6" fill="{MDOT}"/>',
-              f'<rect x="-1.8" y="1" width="3.6" height="3" rx="0.5" fill="{MSTEM}"/>',
-              '</g>',
-              '</defs>',
-              f'<rect width="{W}" height="{H}" fill="{BG}"/>',
-          ]
-
-          # сетка
-          for col in range(COLS):
-              for row in range(ROWS):
-                  x = col * (CELL + GAP)
-                  y = row * (CELL + GAP)
-                  parts.append(
-                      f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" '
-                      f'rx="2" fill="{CELLBG}" stroke="#0a2a4d" stroke-width="0.5"/>'
-                  )
-
-          # ═══════════════════════════════════════════
-          #  ГРИБЫ с анимацией видимости
-          # ═══════════════════════════════════════════
-          cell_time = {cell: i / L for i, cell in enumerate(path)}
-          lead = (SNAKE_LEN - 1) / L
-
-          for (col, row) in dots:
-              cx, cy = xy(col, row)
-
-              if (col, row) in cell_time:
-                  t_tail = cell_time[(col, row)]
-                  t_head = t_tail - lead
-                  if t_head < 0:
-                      t_head += 1.0
-              else:
-                  t_head = 0.5
-
-              t_start = t_head
-              t_end = t_start + INVIS_FRAC
-
-              if t_end <= 1.0:
-                  keyTimes = f"0;{t_start:.4f};{t_start:.4f};{t_end:.4f};1"
-                  values   = "1;1;0;1;1"
-              else:
-                  t_wrap   = t_end - 1.0
-                  keyTimes = f"0;{t_wrap:.4f};{t_wrap:.4f};{t_start:.4f};{t_start:.4f};1"
-                  values   = "0;0;1;1;0;0"
-
-              parts.append(f'<g transform="translate({cx:.1f},{cy:.1f})" filter="url(#glow)">')
-              parts.append('<use href="#mushroom"/>')
-              parts.append(
-                  f'<animate attributeName="opacity" '
-                  f'values="{values}" keyTimes="{keyTimes}" '
-                  f'dur="{DUR:.2f}s" repeatCount="indefinite"/>'
-              )
-              parts.append('</g>')
-
-          # ═══════════════════════════════════════════
-          #  ЗМЕЙКА — голова впереди
-          # ═══════════════════════════════════════════
-          for i in range(SNAKE_LEN):
-              begin = -(SNAKE_LEN - 1 - i) * SPEED
-              r = CELL / 2 - 0.5 if i == 0 else CELL / 2 - 2
-              color = HEAD if i == 0 else SNAKE
-              opacity = 1 if i == 0 else max(0.35, 1 - i * 0.08)
-              parts.append(
-                  f'<circle r="{r}" fill="{color}" opacity="{opacity}" filter="url(#glow)">'
-                  f'<animateMotion dur="{DUR:.2f}s" repeatCount="indefinite" '
-                  f'begin="{begin:.3f}s" path="{path_str}"/>'
-                  f'</circle>'
-              )
-
-          parts.append('</svg>')
-
-          # ═══════════════════════════════════════════
-          #  СОХРАНЯЕМ В НОВЫЙ ФАЙЛ (обход кеша)
-          # ═══════════════════════════════════════════
-          with open('dist/neon-snake.svg', 'w') as f:
-              f.write('\n'.join(parts))
-          print(f'✅ Neon snake v8 — cells={L}, dur={DUR:.1f}s, invis={INVIS_SEC}s')
-          PYEOF
-
-      # ═══ ПАКМАН → ГОЛУБИКА ═══
       - name: Recolor Pacman to blueberry
+        shell: python
         run: |
-          python3 - << 'EOF'
-          import re
           from pathlib import Path
+          import re
 
-          # ═══════════════════════════════════════════════
-          #  КАРТА ЗАМЕНЫ ЦВЕТОВ → ГОЛУБИКА
-          #  Логика: каждый исходный цвет → оттенок голубики
-          # ═══════════════════════════════════════════════
+          # --------------------------------------------------------
+          # Цветовая палитра
+          # --------------------------------------------------------
 
           DARK_MAP = {
-              # фон и сетка → тёмный фиолет (фон голубичной поляны)
-              '#0d1117': '#05070f',
-              '#161b22': '#1a0a3d',
-              # точки, которые ест Пакман → яркая спелая голубика
-              '#ffffff': '#c07aff',
-              # линии лабиринта → средний фиолет
-              '#8b949e': '#6b2fa0',
-              # активные вклады (зелёные) → сочная голубика
-              '#39d353': '#9c4de0',
-              '#26a641': '#7a35c0',
+              "#0d1117": "#05070f",
+              "#161b22": "#12091f",
+
+              # contribution dots → blueberry
+              "#39d353": "#39c6ff",
+              "#26a641": "#209bd1",
+              "#006d32": "#147ca8",
+              "#0e4429": "#0b5575",
+
+              # classic white dots
+              "#ffffff": "#8fe8ff",
+
+              # maze / borders
+              "#8b949e": "#347fa3",
           }
 
           LIGHT_MAP = {
-              '#ffffff': '#f5eeff',   # фон → очень светлый лавандовый
-              '#ebedf0': '#e0d5f5',   # сетка → светлый фиолет
-              '#000000': '#5c1f9e',   # точки → тёмно-фиолетовый
-              '#57606a': '#7a35c0',   # линии → средний фиолет
-              '#216e39': '#9c4de0',   # вклады → голубика
-              '#30a14e': '#7a35c0',
-              '#808080': '#8a8aff',
+              "#ffffff": "#f4fbff",
+              "#ebedf0": "#d8f5ff",
+
+              # contribution dots → blueberry
+              "#39d353": "#39c6ff",
+              "#26a641": "#209bd1",
+              "#216e39": "#147ca8",
+              "#30a14e": "#209bd1",
+
+              "#000000": "#075477",
+              "#57606a": "#347fa3",
+              "#808080": "#5dbbdd",
           }
 
-          for svg in Path('dist').glob('pacman*.svg'):
-              txt = svg.read_text()
-              is_dark = '-dark' in svg.name
-              cmap = DARK_MAP if is_dark else LIGHT_MAP
+          for svg in Path(".").rglob("pacman*.svg"):
 
-              replaced = 0
-              for old, new in cmap.items():
-                  # Регистронезависимая замена hex
-                  pattern = re.compile(re.escape(old), re.IGNORECASE)
-                  count = len(pattern.findall(txt))
-                  if count > 0:
-                      txt = pattern.sub(new, txt)
-                      replaced += count
-                      print(f'  {old} → {new}  ({count} шт.)')
+              text = svg.read_text(encoding="utf-8")
 
-              svg.write_text(txt)
-              print(f'✅ {svg.name}: заменено {replaced} цветов\n')
-          EOF
-      - name: Push to output
-        uses: crazy-max/ghaction-github-pages@v3.1.0
+              color_map = (
+                  DARK_MAP
+                  if "-dark" in svg.name.lower()
+                  else LIGHT_MAP
+              )
+
+              replacements = 0
+
+              for old, new in color_map.items():
+
+                  pattern = re.compile(
+                      re.escape(old),
+                      re.IGNORECASE
+                  )
+
+                  text, count = pattern.subn(new, text)
+
+                  replacements += count
+
+              svg.write_text(
+                  text,
+                  encoding="utf-8"
+              )
+
+              print(
+                  f"✓ {svg}: "
+                  f"{replacements} color replacements"
+              )
+
+      # ============================================================
+      # NEON SNAKE
+      # ============================================================
+
+      - name: Generate neon snake with mushrooms
+        shell: python
+        run: |
+          from __future__ import annotations
+
+          import random
+          from pathlib import Path
+
+          # ========================================================
+          # SETTINGS
+          # ========================================================
+
+          COLS = 53
+          ROWS = 7
+
+          CELL = 11
+          GAP = 2
+
+          SNAKE_LENGTH = 9
+          MUSHROOMS = 8
+
+          # Seconds per cell.
+          SPEED = 0.105
+
+          # How long a mushroom stays hidden
+          # after being eaten.
+          RESPAWN_MIN = 1.5
+          RESPAWN_MAX = 5.0
+
+          # Random seed is intentionally not fixed.
+          # Every workflow generation gets a new route.
+          random.seed()
+
+          # ========================================================
+          # COLORS
+          # ========================================================
+
+          BG = "#05070f"
+          CELL_BG = "#081321"
+          GRID = "#0b2942"
+
+          NEON = "#00d4ff"
+          NEON_LIGHT = "#a8f3ff"
+          NEON_DARK = "#008bb8"
+
+          BLUEBERRY = "#5edcff"
+          BLUEBERRY_LIGHT = "#d5f8ff"
+
+          MUSHROOM_CAP = "#00bfff"
+          MUSHROOM_CAP_LIGHT = "#a6efff"
+          MUSHROOM_STEM = "#d8fbff"
+
+          # ========================================================
+          # DIMENSIONS
+          # ========================================================
+
+          WIDTH = COLS * (CELL + GAP)
+          HEIGHT = ROWS * (CELL + GAP)
+
+          # ========================================================
+          # HELPERS
+          # ========================================================
+
+          def xy(col: int, row: int):
+              return (
+                  col * (CELL + GAP) + CELL / 2,
+                  row * (CELL + GAP) + CELL / 2
+              )
+
+          def neighbours(cell):
+              col, row = cell
+
+              result = []
+
+              directions = [
+                  (1, 0),
+                  (-1, 0),
+                  (0, 1),
+                  (0, -1),
+              ]
+
+              for dc, dr in directions:
+
+                  nc = col + dc
+                  nr = row + dr
+
+                  if (
+                      0 <= nc < COLS
+                      and 0 <= nr < ROWS
+                  ):
+                      result.append((nc, nr))
+
+              return result
+
+          # ========================================================
+          # RANDOM FULL-FIELD ROUTE
+          #
+          # The old version used a fixed:
+          #
+          # left → right
+          # right → left
+          #
+          # route.
+          #
+          # This version creates a random Hamiltonian-like walk
+          # through the entire grid.
+          # ========================================================
+
+          def generate_route():
+
+              total = COLS * ROWS
+
+              start = (
+                  random.randrange(COLS),
+                  random.randrange(ROWS)
+              )
+
+              route = [start]
+              visited = {start}
+
+              while len(route) < total:
+
+                  current = route[-1]
+
+                  candidates = [
+                      cell
+                      for cell in neighbours(current)
+                      if cell not in visited
+                  ]
+
+                  if not candidates:
+                      # Restart if we hit a dead end.
+                      return generate_route()
+
+                  # Prefer cells with fewer available exits.
+                  # This produces more turns and less predictable
+                  # movement than choosing a purely random cell.
+                  candidates.sort(
+                      key=lambda cell: (
+                          len([
+                              n
+                              for n in neighbours(cell)
+                              if n not in visited
+                          ]),
+                          random.random()
+                      )
+                  )
+
+                  # Usually take one of the best candidates,
+                  # but occasionally select another one to make
+                  # the animation less deterministic.
+                  best_count = min(3, len(candidates))
+
+                  next_cell = random.choice(
+                      candidates[:best_count]
+                  )
+
+                  route.append(next_cell)
+                  visited.add(next_cell)
+
+              return route
+
+          # ========================================================
+          # ROUTE
+          # ========================================================
+
+          route = generate_route()
+
+          route_length = len(route)
+
+          duration = route_length * SPEED
+
+          # ========================================================
+          # SVG PATH
+          # ========================================================
+
+          path_commands = []
+
+          for index, cell in enumerate(route):
+
+              x, y = xy(*cell)
+
+              command = "M" if index == 0 else "L"
+
+              path_commands.append(
+                  f"{command} {x:.2f} {y:.2f}"
+              )
+
+          path = " ".join(path_commands)
+
+          # ========================================================
+          # MUSHROOM PLACEMENT
+          #
+          # Mushrooms are placed on random cells.
+          # They are never initially placed directly under the
+          # snake head.
+          # ========================================================
+
+          snake_start = set(route[:SNAKE_LENGTH + 2])
+
+          available_cells = [
+              cell
+              for cell in route
+              if cell not in snake_start
+          ]
+
+          random.shuffle(available_cells)
+
+          mushroom_cells = available_cells[:MUSHROOMS]
+
+          # ========================================================
+          # SVG
+          # ========================================================
+
+          svg = []
+
+          svg.append(
+              f'<svg xmlns="http://www.w3.org/2000/svg" '
+              f'width="{WIDTH}" height="{HEIGHT}" '
+              f'viewBox="0 0 {WIDTH} {HEIGHT}" '
+              f'role="img" aria-label="Neon snake eating mushrooms">'
+          )
+
+          # ========================================================
+          # DEFINITIONS
+          # ========================================================
+
+          svg.append("<defs>")
+
+          # --------------------------------------------------------
+          # Glow
+          # --------------------------------------------------------
+
+          svg.append("""
+          <filter id="glow"
+                  x="-100%"
+                  y="-100%"
+                  width="300%"
+                  height="300%">
+            <feGaussianBlur
+              stdDeviation="2.2"
+              result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          """)
+
+          # Stronger glow for mushrooms.
+
+          svg.append("""
+          <filter id="mushroomGlow"
+                  x="-200%"
+                  y="-200%"
+                  width="400%"
+                  height="400%">
+            <feGaussianBlur
+              stdDeviation="2.8"
+              result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          """)
+
+          # --------------------------------------------------------
+          # Mushroom
+          # --------------------------------------------------------
+
+          svg.append(f"""
+          <g id="mushroom">
+
+            <path
+              d="M -4.8 0
+                 C -4.5 -3.8,
+                   -2.2 -5.2,
+                    0 -5.2
+                 C 2.2 -5.2,
+                   4.5 -3.8,
+                   4.8 0
+                 Z"
+              fill="{MUSHROOM_CAP}"
+            />
+
+            <circle
+              cx="-2.1"
+              cy="-2.3"
+              r="0.8"
+              fill="{MUSHROOM_CAP_LIGHT}"
+            />
+
+            <circle
+              cx="2.0"
+              cy="-2.0"
+              r="0.75"
+              fill="{MUSHROOM_CAP_LIGHT}"
+            />
+
+            <circle
+              cx="0"
+              cy="-3.8"
+              r="0.55"
+              fill="{MUSHROOM_CAP_LIGHT}"
+            />
+
+            <rect
+              x="-1.8"
+              y="0"
+              width="3.6"
+              height="4"
+              rx="0.8"
+              fill="{MUSHROOM_STEM}"
+            />
+
+          </g>
+          """)
+
+          # --------------------------------------------------------
+          # Snake head
+          # --------------------------------------------------------
+
+          svg.append("""
+          <g id="snakeHead">
+
+            <circle
+              cx="0"
+              cy="0"
+              r="4.7"
+              fill="#a8f3ff"
+            />
+
+            <circle
+              cx="-1.6"
+              cy="-1.4"
+              r="0.65"
+              fill="#05070f"
+            />
+
+            <circle
+              cx="1.6"
+              cy="-1.4"
+              r="0.65"
+              fill="#05070f"
+            />
+
+          </g>
+          """)
+
+          svg.append("</defs>")
+
+          # ========================================================
+          # BACKGROUND
+          # ========================================================
+
+          svg.append(
+              f'<rect width="{WIDTH}" '
+              f'height="{HEIGHT}" '
+              f'fill="{BG}"/>'
+          )
+
+          # ========================================================
+          # GRID
+          # ========================================================
+
+          for col in range(COLS):
+
+              for row in range(ROWS):
+
+                  x = col * (CELL + GAP)
+                  y = row * (CELL + GAP)
+
+                  svg.append(
+                      f'<rect '
+                      f'x="{x}" '
+                      f'y="{y}" '
+                      f'width="{CELL}" '
+                      f'height="{CELL}" '
+                      f'rx="2" '
+                      f'fill="{CELL_BG}" '
+                      f'stroke="{GRID}" '
+                      f'stroke-width="0.5"/>'
+                  )
+
+          # ========================================================
+          # MUSHROOM ANIMATION
+          #
+          # The mushroom disappears when the snake reaches its
+          # corresponding position on the route.
+          #
+          # Then it respawns later at the same location.
+          # ========================================================
+
+          route_index = {
+              cell: index
+              for index, cell in enumerate(route)
+          }
+
+          for mushroom in mushroom_cells:
+
+              x, y = xy(*mushroom)
+
+              index = route_index[mushroom]
+
+              # Time when snake head reaches mushroom.
+              eat_time = index * SPEED
+
+              respawn_delay = random.uniform(
+                  RESPAWN_MIN,
+                  RESPAWN_MAX
+              )
+
+              respawn_time = eat_time + respawn_delay
+
+              # SVG animation values.
+              key_times = [
+                  "0",
+                  f"{eat_time / duration:.6f}",
+                  f"{eat_time / duration:.6f}",
+                  f"{respawn_time / duration:.6f}",
+                  f"{respawn_time / duration:.6f}",
+                  "1"
+              ]
+
+              values = [
+                  "1",
+                  "1",
+                  "0",
+                  "0",
+                  "1",
+                  "1"
+              ]
+
+              svg.append(
+                  f'<g '
+                  f'transform="translate({x:.2f},{y:.2f})" '
+                  f'filter="url(#mushroomGlow)">'
+              )
+
+              svg.append(
+                  '<use href="#mushroom"/>'
+              )
+
+              svg.append(
+                  f'<animate '
+                  f'attributeName="opacity" '
+                  f'values="{";".join(values)}" '
+                  f'keyTimes="{";".join(key_times)}" '
+                  f'dur="{duration:.2f}s" '
+                  f'repeatCount="indefinite"/>'
+              )
+
+              svg.append("</g>")
+
+          # ========================================================
+          # SNAKE BODY
+          # ========================================================
+
+          for segment in range(SNAKE_LENGTH):
+
+              # The head is segment 0.
+              delay = segment * SPEED
+
+              radius = (
+                  4.6
+                  if segment == 0
+                  else max(
+                      2.2,
+                      4.2 - segment * 0.28
+                  )
+              )
+
+              opacity = (
+                  1
+                  if segment == 0
+                  else max(
+                      0.32,
+                      1 - segment * 0.075
+                  )
+              )
+
+              color = (
+                  NEON_LIGHT
+                  if segment == 0
+                  else NEON
+              )
+
+              svg.append(
+                  f'<circle '
+                  f'r="{radius:.2f}" '
+                  f'fill="{color}" '
+                  f'opacity="{opacity:.3f}" '
+                  f'filter="url(#glow)">'
+              )
+
+              svg.append(
+                  f'<animateMotion '
+                  f'dur="{duration:.2f}s" '
+                  f'begin="-{delay:.3f}s" '
+                  f'repeatCount="indefinite" '
+                  f'path="{path}" '
+                  f'rotate="auto"/>'
+              )
+
+              svg.append("</circle>")
+
+          # ========================================================
+          # HEAD
+          # ========================================================
+
+          svg.append(
+              '<use href="#snakeHead" '
+              'filter="url(#glow)">'
+          )
+
+          svg.append(
+              f'<animateMotion '
+              f'dur="{duration:.2f}s" '
+              f'repeatCount="indefinite" '
+              f'path="{path}" '
+              f'rotate="auto"/>'
+          )
+
+          svg.append("</use>")
+
+          # ========================================================
+          # END
+          # ========================================================
+
+          svg.append("</svg>")
+
+          output = Path("dist/neon-snake.svg")
+
+          output.write_text(
+              "\n".join(svg),
+              encoding="utf-8"
+          )
+
+          print("======================================")
+          print("✓ NEON SNAKE GENERATED")
+          print(f"✓ Grid: {COLS} x {ROWS}")
+          print(f"✓ Cells: {route_length}")
+          print(f"✓ Snake length: {SNAKE_LENGTH}")
+          print(f"✓ Mushrooms: {MUSHROOMS}")
+          print(f"✓ Duration: {duration:.2f}s")
+          print(f"✓ Output: {output}")
+          print("======================================")
+
+      # ============================================================
+      # DEPLOY
+      # ============================================================
+
+      - name: Publish animations
+        uses: crazy-max/ghaction-github-pages@v5
         with:
           target_branch: output
           build_dir: dist
+          commit_message: "🎮 Update arcade animations"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
