@@ -36,6 +36,8 @@
   </picture>
 </p>
 
+
+[![Играть в Сапёра](https://img.shields.io/badge/🎮_Играть_в_Сапёра-00d4ff?style=for-the-badge&labelColor=05070f)](https://idemsk8.github.io/minesweeper/)
 ---
 ## 🔗 Связаться со мной
 
