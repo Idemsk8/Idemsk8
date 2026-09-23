@@ -22,15 +22,6 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════
-     🎮 КНОПКА-БОМБА НА ИГРУ
-     ═══════════════════════════════════════════════ -->
-<p align="center">
-  <a href="https://idemsk8.github.io/minesweeper/" target="_blank">
-    <img src="bomb.svg" alt="Играть в Сапёра" width="180" />
-  </a>
-</p>
-
-<!-- ═══════════════════════════════════════════════
      📝 ОБО МНЕ
      ═══════════════════════════════════════════════ -->
 <h2>
@@ -107,6 +98,25 @@
   width="100%"
   alt="GitHub Snake"
 />
+<!-- ═══════════════════════════════════════════════
+     🎮 КНОПКА-БОМБА НА ИГРУ
+     ═══════════════════════════════════════════════ -->
+<p align="center">
+  <a href="https://idemsk8.github.io/minesweeper/" target="_blank">
+    <img src="bomb.svg" alt="Играть в Сапёра" width="180" />
+  </a>
+</p>
+
+<h2 align="center">🏎️ NEON ROAD</h2>
+
+<p align="center">
+  <a href="https://Idemsk8.github.io/Idemsk8/games/neon-road.html">
+    <img
+      src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=800&size=22&duration=2500&pause=700&color=00D4FF&center=true&vCenter=true&width=500&lines=%E2%96%B6+START+NEON+ROAD;%F0%9F%8F%8E%EF%B8%8F+DRIVE+%26+DODGE;%E2%9A%A1+BEAT+YOUR+RECORD"
+      alt="Start Neon Road"
+    />
+  </a>
+</p>
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
      ═══════════════════════════════════════════════ -->
