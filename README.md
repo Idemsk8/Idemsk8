@@ -94,12 +94,15 @@
      ═══════════════════════════════════════════════ -->
 ## 🎮 МОИ КОММИТЫ
 
-<img src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg" width="100%" alt="Pac-Man contribution graph">
+<img src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg"
+     width="100%"
+     alt="Pac-Man contribution graph">
 
 <br>
 
-<img src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/github-snake-dark.svg" width="100%" alt="GitHub contribution snake">
-
+<img src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/github-snake-dark.svg"
+     width="100%"
+     alt="GitHub Snake">
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
      ═══════════════════════════════════════════════ -->
