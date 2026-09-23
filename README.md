@@ -103,9 +103,9 @@
 <br>
 
 <img
-  src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/arcade-snake.gif"
+  src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/arcade-snake-dark.svg"
   width="100%"
-  alt="Arcade Snake"
+  alt="GitHub Snake"
 />
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
