@@ -92,6 +92,7 @@
 <!-- ═══════════════════════════════════════════════
      👾 ПАКМАН (уже перекрашен в неон)
      ═══════════════════════════════════════════════ -->
+     
 <h2>
   <img src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff" />
 </h2>
@@ -100,19 +101,20 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" 
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg">
+            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg?v=5">
     <source media="(prefers-color-scheme: light)" 
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg">
+            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=5">
     <img alt="pacman" 
-         src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg">
+         src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=5">
   </picture>
 </p>
 
-<!-- 🍄 Змейка -->
+<!-- 🍄 Змейка с грибами -->
 <p align="center">
   <img alt="neon snake" width="100%"
-       src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/custom-snake.svg">
+       src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/custom-snake.svg?v=5">
 </p>
+
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
      ═══════════════════════════════════════════════ -->
