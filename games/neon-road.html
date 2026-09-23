@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON ROAD</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at center, #0a1725 0%, #05070f 55%, #020308 100%);
+    color: #a0f0ff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.game {
+    width: 420px;
+    max-width: 94vw;
+    text-align: center;
+}
+
+.title {
+    color: #00d4ff;
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+    text-shadow:
+        0 0 8px #00d4ff,
+        0 0 25px #006b9c;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    background: #07111c;
+    border: 1px solid #123b55;
+    border-radius: 10px;
+    font-family: monospace;
+}
+
+.label {
+    color: #62869a;
+}
+
+.value {
+    color: #00d4ff;
+    font-weight: bold;
+}
+
+#record {
+    color: #a0f0ff;
+}
+
+.game-box {
+    position: relative;
+    width: 100%;
+    height: 620px;
+    overflow: hidden;
+    border: 2px solid #006b9c;
+    border-radius: 14px;
+    background: #03070c;
+    box-shadow:
+        0 0 15px rgba(0,212,255,.25),
+        inset 0 0 30px rgba(0,212,255,.06);
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.message {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(2,5,10,.82);
+    backdrop-filter: blur(4px);
+}
+
+.message.hidden {
+    display: none;
+}
+
+.message h2 {
+    color: #00d4ff;
+    font-size: 32px;
+    letter-spacing: 3px;
+    margin: 0 0 10px;
+    text-shadow: 0 0 15px #00d4ff;
+}
+
+.message p {
+    color: #8eb6c7;
+    margin: 5px;
+}
+
+button {
+    margin-top: 18px;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: 1px solid #00d4ff;
+    background: #071827;
+    color: #a0f0ff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .15s;
+}
+
+button:hover {
+    background: #0b3045;
+    box-shadow: 0 0 15px rgba(0,212,255,.4);
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.control {
+    width: 100px;
+    height: 45px;
+    margin: 0;
+    font-size: 20px;
+}
+
+.help {
+    margin-top: 10px;
+    color: #537080;
+    font-size: 12px;
+}
+
+.new-record {
+    color: #00d4ff !important;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00d4ff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <div class="title">NEON ROAD</div>
+
+    <div class="stats">
+        <div>
+            <span class="label">SCORE</span>
+            <span class="value" id="score">0</span>
+        </div>
+
+        <div>
+            <span class="label">RECORD</span>
+            <span class="value" id="record">0</span>
+        </div>
+    </div>
+
+    <div class="game-box">
+
+        <canvas id="game"></canvas>
+
+        <div class="message" id="message">
+
+            <h2 id="messageTitle">NEON ROAD</h2>
+
+            <p id="messageText">
+                Объезжай машины
+            </p>
+
+            <button id="start">
+                START
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button class="control" id="left">←</button>
+        <button class="control" id="right">→</button>
+    </div>
+
+    <div class="help">
+        ← → / A D — управление
+    </div>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const scoreElement = document.getElementById("score");
+const recordElement = document.getElementById("record");
+
+const message = document.getElementById("message");
+const messageTitle = document.getElementById("messageTitle");
+const messageText = document.getElementById("messageText");
+const startButton = document.getElementById("start");
+
+const leftButton = document.getElementById("left");
+const rightButton = document.getElementById("right");
+
+
+let width;
+let height;
+
+let player;
+let enemies = [];
+
+let score = 0;
+let record = Number(localStorage.getItem("neonRoadRecord")) || 0;
+
+let gameRunning = false;
+let gameOver = false;
+
+let speed = 4;
+let spawnTimer = 0;
+let lastTime = 0;
+
+let leftPressed = false;
+let rightPressed = false;
+
+let roadOffset = 0;
+
+
+recordElement.textContent = record;
+
+
+function resizeCanvas() {
+
+    const rect = canvas.getBoundingClientRect();
+
+    width = rect.width;
+    height = rect.height;
+
+    const ratio = window.devicePixelRatio || 1;
+
+    canvas.width = width * ratio;
+    canvas.height = height * ratio;
+
+    ctx.setTransform(
+        ratio,
+        0,
+        0,
+        ratio,
+        0,
+        0
+    );
+
+}
+
+
+window.addEventListener("resize", resizeCanvas);
+
+
+function createPlayer() {
+
+    return {
+
+        x: width / 2,
+
+        y: height - 100,
+
+        width: 42,
+
+        height: 70,
+
+        speed: 7
+
+    };
+
+}
+
+
+function startGame() {
+
+    resizeCanvas();
+
+    player = createPlayer();
+
+    enemies = [];
+
+    score = 0;
+
+    speed = 4;
+
+    spawnTimer = 0;
+
+    roadOffset = 0;
+
+    gameRunning = true;
+
+    gameOver = false;
+
+    scoreElement.textContent = "0";
+
+    message.classList.add("hidden");
+
+    lastTime = performance.now();
+
+    requestAnimationFrame(gameLoop);
+
+}
+
+
+function endGame() {
+
+    gameRunning = false;
+
+    gameOver = true;
+
+    const finalScore = Math.floor(score);
+
+    let isNewRecord = false;
+
+    if (finalScore > record) {
+
+        record = finalScore;
+
+        localStorage.setItem(
+            "neonRoadRecord",
+            record
+        );
+
+        recordElement.textContent = record;
+
+        isNewRecord = true;
+
+    }
+
+    messageTitle.textContent = "CRASH!";
+
+    messageText.innerHTML =
+        "Счёт: <b>" + finalScore + "</b>" +
+        "<br>Рекорд: <b>" + record + "</b>" +
+        (isNewRecord
+            ? '<br><span class="new-record">★ НОВЫЙ РЕКОРД ★</span>'
+            : "");
+
+    startButton.textContent = "PLAY AGAIN";
+
+    message.classList.remove("hidden");
+
+}
+
+
+function drawRoad() {
+
+    ctx.fillStyle = "#05080d";
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const roadLeft = width * .16;
+    const roadWidth = width * .68;
+
+    ctx.fillStyle = "#0a0e14";
+
+    ctx.fillRect(
+        roadLeft,
+        0,
+        roadWidth,
+        height
+    );
+
+
+    /* края дороги */
+
+    ctx.strokeStyle = "#00d4ff";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        roadLeft,
+        0
+    );
+
+    ctx.lineTo(
+        roadLeft,
+        height
+    );
+
+    ctx.moveTo(
+        roadLeft + roadWidth,
+        0
+    );
+
+    ctx.lineTo(
+        roadLeft + roadWidth,
+        height
+    );
+
+    ctx.stroke();
+
+
+    /* центральные линии */
+
+    ctx.strokeStyle = "#264656";
+
+    ctx.lineWidth = 3;
+
+    ctx.setLineDash([
+        35,
+        28
+    ]);
+
+    ctx.lineDashOffset = -roadOffset;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        width / 2,
+        0
+    );
+
+    ctx.lineTo(
+        width / 2,
+        height
+    );
+
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+
+    /* движение дороги */
+
+    roadOffset += speed * 1.5;
+
+    if (roadOffset > 63) {
+
+        roadOffset = 0;
+
+    }
+
+}
+
+
+function drawCar(car, color, enemy = false) {
+
+    ctx.save();
+
+    ctx.translate(
+        car.x,
+        car.y
+    );
+
+
+    /* свечение */
+
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = color;
+
+    ctx.fillStyle = color;
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        -car.width / 2,
+        -car.height / 2,
+        car.width,
+        car.height,
+        8
+    );
+
+    ctx.fill();
+
+
+    ctx.shadowBlur = 0;
+
+
+    /* окна */
+
+    ctx.fillStyle = "#071019";
+
+    ctx.fillRect(
+        -14,
+        -24,
+        28,
+        18
+    );
+
+    ctx.fillRect(
+        -14,
+        7,
+        28,
+        17
+    );
+
+
+    /* фары */
+
+    ctx.fillStyle =
+        enemy
+            ? "#ff335f"
+            : "#dfffff";
+
+    ctx.fillRect(
+        -15,
+        -34,
+        9,
+        5
+    );
+
+    ctx.fillRect(
+        6,
+        -34,
+        9,
+        5
+    );
+
+
+    /* задние огни */
+
+    ctx.fillStyle = "#ff174f";
+
+    ctx.fillRect(
+        -15,
+        29,
+        9,
+        5
+    );
+
+    ctx.fillRect(
+        6,
+        29,
+        9,
+        5
+    );
+
+
+    /* колёса */
+
+    ctx.fillStyle = "#020305";
+
+    ctx.fillRect(
+        -24,
+        -22,
+        5,
+        15
+    );
+
+    ctx.fillRect(
+        19,
+        -22,
+        5,
+        15
+    );
+
+    ctx.fillRect(
+        -24,
+        8,
+        5,
+        15
+    );
+
+    ctx.fillRect(
+        19,
+        8,
+        5,
+        15
+    );
+
+
+    ctx.restore();
+
+}
+
+
+function spawnEnemy() {
+
+    const roadLeft = width * .16;
+    const roadWidth = width * .68;
+
+    const lanes = [
+
+        roadLeft + roadWidth * .25,
+
+        roadLeft + roadWidth * .50,
+
+        roadLeft + roadWidth * .75
+
+    ];
+
+
+    const lane =
+        lanes[
+            Math.floor(
+                Math.random() * lanes.length
+            )
+        ];
+
+
+    enemies.push({
+
+        x: lane,
+
+        y: -80,
+
+        width: 42,
+
+        height: 70,
+
+        speed:
+            speed +
+            Math.random() * 2
+
+    });
+
+}
+
+
+function collision(a, b) {
+
+    return (
+
+        Math.abs(a.x - b.x) <
+        (a.width + b.width) / 2 - 7
+
+        &&
+
+        Math.abs(a.y - b.y) <
+        (a.height + b.height) / 2 - 7
+
+    );
+
+}
+
+
+function update(delta) {
+
+    if (leftPressed) {
+
+        player.x -=
+            player.speed * delta;
+
+    }
+
+    if (rightPressed) {
+
+        player.x +=
+            player.speed * delta;
+
+    }
+
+
+    const roadLeft = width * .16;
+    const roadRight = width * .84;
+
+
+    player.x = Math.max(
+        roadLeft + 30,
+        Math.min(
+            roadRight - 30,
+            player.x
+        )
+    );
+
+
+    /* скорость постепенно увеличивается */
+
+    speed += 0.0015 * delta;
+
+
+    /* появление машин */
+
+    spawnTimer += delta;
+
+    const spawnDelay =
+        Math.max(
+            350,
+            900 - speed * 55
+        );
+
+
+    if (spawnTimer > spawnDelay) {
+
+        spawnEnemy();
+
+        spawnTimer = 0;
+
+    }
+
+
+    /* движение машин */
+
+    enemies.forEach(enemy => {
+
+        enemy.y +=
+            enemy.speed * delta;
+
+    });
+
+
+    /* удаление машин */
+
+    enemies =
+        enemies.filter(
+            enemy =>
+                enemy.y <
+                height + 100
+        );
+
+
+    /* столкновение */
+
+    for (const enemy of enemies) {
+
+        if (
+            collision(
+                player,
+                enemy
+            )
+        ) {
+
+            endGame();
+
+            return;
+
+        }
+
+    }
+
+
+    /* очки */
+
+    score +=
+        delta * 0.015;
+
+    scoreElement.textContent =
+        Math.floor(score);
+
+}
+
+
+function draw() {
+
+    drawRoad();
+
+
+    for (const enemy of enemies) {
+
+        drawCar(
+            enemy,
+            "#d62f61",
+            true
+        );
+
+    }
+
+
+    drawCar(
+        player,
+        "#00d4ff"
+    );
+
+}
+
+
+function gameLoop(time) {
+
+    if (!gameRunning) {
+
+        return;
+
+    }
+
+
+    const delta =
+        Math.min(
+            time - lastTime,
+            35
+        ) / 16.67;
+
+
+    lastTime = time;
+
+
+    update(delta);
+
+    draw();
+
+
+    if (gameRunning) {
+
+        requestAnimationFrame(
+            gameLoop
+        );
+
+    }
+
+}
+
+
+/* клавиатура */
+
+window.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "ArrowLeft" ||
+            event.key.toLowerCase() === "a"
+        ) {
+
+            leftPressed = true;
+
+        }
+
+
+        if (
+            event.key === "ArrowRight" ||
+            event.key.toLowerCase() === "d"
+        ) {
+
+            rightPressed = true;
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    event => {
+
+        if (
+            event.key === "ArrowLeft" ||
+            event.key.toLowerCase() === "a"
+        ) {
+
+            leftPressed = false;
+
+        }
+
+
+        if (
+            event.key === "ArrowRight" ||
+            event.key.toLowerCase() === "d"
+        ) {
+
+            rightPressed = false;
+
+        }
+
+    }
+);
+
+
+/* кнопки */
+
+function holdButton(
+    button,
+    direction
+) {
+
+    button.addEventListener(
+        "pointerdown",
+        () => {
+
+            if (direction === "left") {
+
+                leftPressed = true;
+
+            } else {
+
+                rightPressed = true;
+
+            }
+
+        }
+    );
+
+
+    button.addEventListener(
+        "pointerup",
+        () => {
+
+            leftPressed = false;
+            rightPressed = false;
+
+        }
+    );
+
+
+    button.addEventListener(
+        "pointerleave",
+        () => {
+
+            leftPressed = false;
+            rightPressed = false;
+
+        }
+    );
+
+}
+
+
+holdButton(
+    leftButton,
+    "left"
+);
+
+holdButton(
+    rightButton,
+    "right"
+);
+
+
+startButton.addEventListener(
+    "click",
+    startGame
+);
+
+
+resizeCanvas();
+
+</script>
+
+</body>
+</html>
