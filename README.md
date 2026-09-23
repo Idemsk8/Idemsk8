@@ -108,10 +108,11 @@
   </picture>
 </p>
 
-<!-- 🐍 Неоновая змейка (кастомная, плавная) -->
+<!-- 🍄🐍 Неоновая змейка с грибами -->
 <p align="center">
-  <img alt="neon snake" width="100%"
+  <img alt="neon snake with mushrooms" width="100%"
        src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/custom-snake.svg">
+</p>
 </p>
 <!-- 📊 Запасной график вкладов (если что-то не сработает) -->
 <p align="center">
