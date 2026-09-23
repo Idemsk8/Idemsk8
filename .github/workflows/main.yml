@@ -186,7 +186,7 @@ jobs:
           print(f'✅ Neon snake v8 — cells={L}, dur={DUR:.1f}s, invis={INVIS_SEC}s')
           PYEOF
 
-      # ═══ ПАКМАН → ГОЛУБИКА ═══      
+      # ═══ ПАКМАН → ГОЛУБИКА ═══
       - name: Recolor Pacman to blueberry
         run: |
           python3 - << 'EOF'
@@ -194,125 +194,66 @@ jobs:
           from collections import Counter
           from pathlib import Path
 
-          def berry_group(cx, cy, r, fill):
-              return (
-                  f'<g transform="translate({cx:.1f},{cy:.1f})">'
-                  f'<circle r="{r:.2f}" fill="{fill}" stroke="#0d0630" stroke-width="0.6"/>'
-                  f'<circle cx="{-r*0.35:.2f}" cy="{-r*0.35:.2f}" r="{r*0.22:.2f}" fill="#ffffff" opacity="0.55"/>'
-                  f'<circle cx="0" cy="{r*0.25:.2f}" r="{r*0.15:.2f}" fill="#0d0630" opacity="0.6"/>'
-                  f'</g>'
-              )
-
-          SHADES = ['#3b1a5c', '#6b2fa0', '#9c4de0', '#c07aff']
-
-          def hex_to_rgb(h):
-              h = h.lstrip('#').lower()
-              if len(h) != 6: return None
-              try:
-                  return int(h[0:2],16), int(h[2:4],16), int(h[4:6],16)
-              except ValueError:
-                  return None
-
-          rect_re = re.compile(r'<rect\b([^>]*?)/?>', re.IGNORECASE | re.DOTALL)
-          attr_re = re.compile(r'([\w-]+)\s*=\s*"([^"]*)"')
-
           for svg in Path('dist').glob('pacman*.svg'):
               txt = svg.read_text()
+              print(f'\n══════════ {svg.name} ══════════')
+              print(f'Размер файла: {len(txt)} символов')
 
-              # ═══ 1. Собираем все rect ═══
-              sizes = Counter()
-              rects_data = []
+              # ═══ Уникальные цвета в fill ═══
+              fills = Counter(re.findall(r'fill\s*=\s*"([^"]+)"', txt))
+              print(f'\n📌 fill="..." (топ-10):')
+              for v, n in fills.most_common(10):
+                  print(f'    {v}  →  {n}')
 
-              for m in rect_re.finditer(txt):
-                  attrs = {k.lower(): v for k, v in attr_re.findall(m.group(1))}
-                  try:
-                      x = float(attrs.get('x', 0))
-                      y = float(attrs.get('y', 0))
-                      w = round(float(attrs.get('width', 0)), 1)
-                      h = round(float(attrs.get('height', 0)), 1)
-                  except (ValueError, TypeError):
-                      continue
-                  fill = attrs.get('fill', '').lower()
-                  sizes[(w, h)] += 1
-                  rects_data.append((x, y, w, h, fill))
+              # ═══ Уникальные цвета в style ═══
+              styles = Counter(re.findall(r'style\s*=\s*"([^"]*)"', txt))
+              print(f'\n📌 style="..." (топ-5):')
+              for v, n in styles.most_common(5):
+                  print(f'    {v[:80]}  →  {n}')
 
-              # ═══ 2. Определяем размер клетки (самый частый) ═══
-              if not sizes:
-                  print(f'❌ {svg.name}: rect не найдены')
-                  continue
-              cell_size, _ = sizes.most_common(1)[0]
-              cw, ch = cell_size
+              # ═══ Классы ═══
+              classes = Counter(re.findall(r'class\s*=\s*"([^"]+)"', txt))
+              print(f'\n📌 class="..." (топ-10):')
+              for v, n in classes.most_common(10):
+                  print(f'    {v}  →  {n}')
 
-              # ═══ 3. Определяем цвет фона (самый частый цвет клеток) ═══
-              cell_colors = Counter()
-              for (x, y, w, h, fill) in rects_data:
-                  if (w, h) == cell_size and fill.startswith('#'):
-                      cell_colors[fill] += 1
+              # ═══ Есть ли <style> блок ═══
+              style_block = re.search(r'<style[^>]*>(.*?)</style>', txt, re.DOTALL)
+              if style_block:
+                  print(f'\n📌 <style> блок (первые 800 символов):')
+                  print(style_block.group(1)[:800])
+              else:
+                  print(f'\n📌 <style> блок: НЕТ')
 
-              if not cell_colors:
-                  print(f'❌ {svg.name}: нет клеток с fill')
-                  continue
+              # ═══ Типы элементов ═══
+              tags = Counter(re.findall(r'<(\w+)', txt))
+              print(f'\n📌 Топ-15 тегов:')
+              for v, n in tags.most_common(15):
+                  print(f'    <{v}>  →  {n}')
 
-              bg_color, bg_count = cell_colors.most_common(1)[0]
-              print(f'📊 {svg.name}: клетка={cw}×{ch}, фон={bg_color} ({bg_count} шт.)')
-              print(f'🎨 Всего цветов клеток: {len(cell_colors)}')
-              for c, n in cell_colors.most_common(5):
-                  print(f'    {c}  →  {n} шт.')
+              # ═══ Все уникальные цвета в тексте файла (hex) ═══
+              hexes = Counter(re.findall(r'#[0-9a-fA-F]{6}', txt))
+              print(f'\n📌 Все hex-цвета в файле (топ-15):')
+              for v, n in hexes.most_common(15):
+                  print(f'    {v}  →  {n}')
 
-              # ═══ 4. Все цвета КРОМЕ фона — это уровни активности ═══
-              active_colors = [c for c in cell_colors if c != bg_color]
-              active_colors.sort(key=lambda c: (
-                  lambda rgb: rgb[0]*0.299 + rgb[1]*0.587 + rgb[2]*0.114
-              )(hex_to_rgb(c) or (0,0,0)))
+              # ═══ Первые 500 символов одного <rect> ═══
+              first_rect = re.search(r'<rect[^>]*>', txt)
+              if first_rect:
+                  print(f'\n📌 Пример первого <rect>:')
+                  print(f'    {first_rect.group(0)[:300]}')
 
-              # ═══ 5. Сопоставляем: цвет → оттенок голубики ═══
-              color_map = {}
-              n = len(active_colors)
-              for i, c in enumerate(active_colors):
-                  if n == 1:
-                      color_map[c] = SHADES[3]
-                  else:
-                      idx = int(i / (n - 1) * (len(SHADES) - 1))
-                      color_map[c] = SHADES[idx]
+              # ═══ Первые 500 символов одного <path> ═══
+              first_path = re.search(r'<path[^>]*>', txt)
+              if first_path:
+                  print(f'\n📌 Пример первого <path>:')
+                  print(f'    {first_path.group(0)[:300]}')
 
-              print(f'🎯 Уровней активности: {n}')
-              for c, s in color_map.items():
-                  print(f'    {c} → {s}')
-
-              # ═══ 6. Рисуем голубику ═══
-              berries = []
-              for (x, y, w, h, fill) in rects_data:
-                  if (w, h) != cell_size: continue
-                  if fill not in color_map: continue
-                  cx = x + w / 2
-                  cy = y + h / 2
-                  r  = min(w, h) * 0.45
-                  berries.append(berry_group(cx, cy, r, color_map[fill]))
-
-              # Вставляем ВСЕ голубики одним куском
-              if berries:
-                  txt = txt.replace('</svg>', '\n'.join(berries) + '\n</svg>')
-
-              print(f'🫐 {svg.name}: нарисовано голубик = {len(berries)}')
-
-              # ═══ 7. Приглушаем фон и клетки ═══
-              for c in set(re.findall(r'#[0-9a-fA-F]{6}', txt)):
-                  cl = c.lower()
-                  if cl in color_map.values(): continue  # не трогаем голубику
-                  rgb = hex_to_rgb(c)
-                  if not rgb: continue
-                  lum = rgb[0]*0.299 + rgb[1]*0.587 + rgb[2]*0.114
-                  if lum < 40:  newc = '#05070f'
-                  elif lum < 80:  newc = '#0d0630'
-                  elif lum < 130: newc = '#1a0a3d'
-                  elif lum < 180: newc = '#2a1050'
-                  else:           newc = '#3a1560'
-                  txt = txt.replace(c, newc)
-
-              svg.write_text(txt)
-              print(f'✅ {svg.name}: готово\n')
+              # ═══ Первые 300 символов файла ═══
+              print(f'\n📌 Первые 300 символов файла:')
+              print(txt[:300])
+              print()
           EOF
-
       - name: Push to output
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
