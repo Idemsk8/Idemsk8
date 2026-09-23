@@ -186,11 +186,12 @@ jobs:
           print(f'✅ Neon snake v8 — cells={L}, dur={DUR:.1f}s, invis={INVIS_SEC}s')
           PYEOF
 
-      # ═══ ПАКМАН → ГОЛУБИКА ═══
+      # ═══ ПАКМАН → ГОЛУБИКА ═══      
       - name: Recolor Pacman to blueberry
         run: |
           python3 - << 'EOF'
           import re
+          from collections import Counter
           from pathlib import Path
 
           def berry_group(cx, cy, r, fill):
@@ -225,70 +226,86 @@ jobs:
               except ValueError:
                   return None
 
-          # Гибкий регекс — порядок атрибутов не важен
           rect_re = re.compile(r'<rect\b([^>]*?)/?>', re.IGNORECASE | re.DOTALL)
           attr_re = re.compile(r'([\w-]+)\s*=\s*"([^"]*)"')
 
           for svg in Path('dist').glob('pacman*.svg'):
               txt = svg.read_text()
-              berries = []
-              found_rects = 0
-              found_cells = 0
+
+              # ─── Проход 1: собираем статистику размеров rect ───
+              sizes = Counter()
+              rects_data = []
 
               for m in rect_re.finditer(txt):
-                  attrs_raw = m.group(1)
-                  attrs = {k.lower(): v for k, v in attr_re.findall(attrs_raw)}
-
+                  attrs = {k.lower(): v for k, v in attr_re.findall(m.group(1))}
                   try:
                       x = float(attrs.get('x', 0))
                       y = float(attrs.get('y', 0))
-                      w = float(attrs.get('width', 0))
-                      h = float(attrs.get('height', 0))
+                      w = round(float(attrs.get('width', 0)), 1)
+                      h = round(float(attrs.get('height', 0)), 1)
                   except (ValueError, TypeError):
                       continue
+                  sizes[(w, h)] += 1
+                  rects_data.append((x, y, w, h, attrs.get('fill', '')))
 
-                  found_rects += 1
+              # ─── Отладка: показываем топ-5 размеров ───
+              print(f'📊 {svg.name}: размеры rect (top-5):')
+              for (w, h), cnt in sizes.most_common(5):
+                  print(f'    {w}×{h}  →  {cnt} шт.')
 
-                  # Размеры клетки: 8–16 px (типичный размер клетки графика)
-                  if not (7 <= w <= 16 and 7 <= h <= 16):
+              # ─── Автовыбор размера клетки: самый частый ───
+              if not sizes:
+                  print(f'❌ {svg.name}: rect не найдены')
+                  continue
+
+              cell_size, count = sizes.most_common(1)[0]
+              cw, ch = cell_size
+              print(f'🎯 Выбран размер клетки: {cw}×{ch} (встречается {count} раз)')
+
+              # ─── Проход 2: рисуем голубику на клетках этого размера ───
+              berries = 0
+              for (x, y, w, h, fill) in rects_data:
+                  if (w, h) != cell_size:
                       continue
-
-                  fill = attrs.get('fill', '')
                   if not fill.startswith('#'):
                       continue
-
                   rgb = hex_to_rgb(fill)
                   if not rgb:
                       continue
-
                   shade = pick_shade(*rgb)
                   if not shade:
                       continue
-
-                  found_cells += 1
                   cx = x + w / 2
                   cy = y + h / 2
                   r  = min(w, h) * 0.42
-                  berries.append(berry_group(cx, cy, r, shade))
+                  txt = txt.replace(
+                      f'</svg>',
+                      berry_group(cx, cy, r, shade) + '\n</svg>'
+                  )
+                  berries += 1
 
-              print(f'🔎 {svg.name}: rects={found_rects}, cells={found_cells}, berries={len(berries)}')
+              print(f'🫐 {svg.name}: нарисовано голубик = {berries}')
 
-              if berries:
-                  txt = txt.replace('</svg>', '\n'.join(berries) + '\n</svg>')
+              # ─── Приглушаем оригинальные цвета клеток ───
+              def kill_color(h):
+                  hh = h.lstrip('#').lower()
+                  if len(hh) != 6: return h
+                  try:
+                      r, g, b = int(hh[0:2],16), int(hh[2:4],16), int(hh[4:6],16)
+                  except ValueError:
+                      return h
+                  lum = r*0.299 + g*0.587 + b*0.114
+                  if lum < 40:  return '#05070f'
+                  if lum < 80:  return '#0d0630'
+                  if lum < 130: return '#1a0a3d'
+                  if lum < 180: return '#2a1050'
+                  return '#3a1560'
 
-              # Приглушаем оригинальные клетки (те, что уже обработаны)
               for c in set(re.findall(r'#[0-9a-fA-F]{6}', txt)):
-                  rgb = hex_to_rgb(c)
-                  if not rgb: continue
-                  lum = rgb[0]*0.299 + rgb[1]*0.587 + rgb[2]*0.114
-                  if lum < 40:  newc = '#05070f'
-                  elif lum < 80:  newc = '#0d0630'
-                  elif lum < 130: newc = '#1a0a3d'
-                  elif lum < 180: newc = '#2a1050'
-                  else:           newc = '#3a1560'
-                  txt = txt.replace(c, newc)
+                  txt = txt.replace(c, kill_color(c))
 
               svg.write_text(txt)
+              print(f'✅ {svg.name}: готово')
           EOF
 
       - name: Push to output
