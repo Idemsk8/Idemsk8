@@ -44,5 +44,5 @@
 ---
 
 <p align="center">
-  <i>⭐️ From <a href="https://github.com/ТВОЙ_НИК">ТВОЙ_НИК</a></i>
+  <i>⭐️ From <a href="https://github.com/Idemsk8">Idemsk8</a></i>
 </p>
