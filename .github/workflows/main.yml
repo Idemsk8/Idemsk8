@@ -15,13 +15,11 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      # 1. Пакман
       - name: Generate pacman
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
 
-      # 2. Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -30,7 +28,6 @@ jobs:
       - name: Prepare dist
         run: mkdir -p dist
 
-      # 3. Змейка с грибами
       - name: Generate neon snake
         run: |
           python3 - << 'PYEOF'
@@ -41,7 +38,8 @@ jobs:
           CELL, GAP  = 11, 2
           SNAKE_LEN  = 8
           NUM_DOTS   = 20
-          SPEED      = 20.20          # секунд на одну клетку
+          SPEED      = 0.10    # секунд на клетку (быстрее, т.к. путь длинный)
+          INVIS_SEC  = 35.0    # ← гриб невидим 35 секунд
 
           BG     = "#05070f"
           CELLBG = "#0a1122"
@@ -54,25 +52,30 @@ jobs:
           W = COLS * (CELL + GAP)
           H = ROWS * (CELL + GAP)
 
-          # ════ БОЛЬШОЙ КРУГ ПО ПЕРИМЕТРУ ════
+          # ════ ЗМЕЙКА ОБХОДИТ ВСЁ ПОЛЕ (построчно) ════
+          # Строка 0: слева → направо
+          # Строка 1: справа → налево
+          # Строка 2: слева → направо
+          # ... и т.д. — плавно, без разрывов
           path = []
-          # верх: слева направо
-          for c in range(COLS): path.append((c, 0))
-          # право: вниз
-          for r in range(1, ROWS): path.append((COLS - 1, r))
-          # низ: справа налево
-          for c in range(COLS - 2, -1, -1): path.append((c, ROWS - 1))
-          # лево: вверх
-          for r in range(ROWS - 2, 0, -1): path.append((0, r))
+          for row in range(ROWS):
+              if row % 2 == 0:
+                  for c in range(COLS):
+                      path.append((c, row))
+              else:
+                  for c in range(COLS - 1, -1, -1):
+                      path.append((c, row))
 
           L = len(path)
           DUR = L * SPEED
+          INVIS_FRAC = INVIS_SEC / DUR
 
-          # ════ РАНДОМНЫЕ ГРИБЫ ТОЛЬКО НА ПУТИ ════
+          # ════ 20 ГРИБОВ РАЗБРОСАНЫ ПО ВСЕМУ ПОЛЮ ════
           random.seed()
           dots = set()
           while len(dots) < NUM_DOTS:
-              dots.add(random.choice(path))
+              dots.add((random.randint(0, COLS - 1),
+                        random.randint(0, ROWS - 1)))
 
           def xy(c, r):
               return c * (CELL + GAP) + CELL / 2, r * (CELL + GAP) + CELL / 2
@@ -109,39 +112,43 @@ jobs:
                       f'rx="2" fill="{CELLBG}" stroke="#0a2a4d" stroke-width="0.5"/>'
                   )
 
-          # ════ ГРИБЫ — ИСЧЕЗАЮТ ПОД ГОЛОВОЙ ════
-          # Голова опережает хвост на (SNAKE_LEN-1) клеток.
-          # Голова приходит в клетку j за (L-1)/L*DUR раньше хвоста.
+          # ════ ГРИБЫ ════
+          cell_time = {cell: i / L for i, cell in enumerate(path)}
           lead = (SNAKE_LEN - 1) / L
 
-          for idx, (col, row) in enumerate(path):
-              if (col, row) not in dots: continue
+          for (col, row) in dots:
               cx, cy = xy(col, row)
 
-              t_tail = idx / L
-              t_head = t_tail - lead
-              if t_head < 0: t_head += 1.0
+              if (col, row) in cell_time:
+                  t_tail = cell_time[(col, row)]
+                  t_head = t_tail - lead
+                  if t_head < 0: t_head += 1.0
+              else:
+                  t_head = 0.5
 
-              # гриб исчезает за 0.02 до головы и остаётся невидимым 0.06 цикла
-              t1 = max(0.001, t_head - 0.005)
-              t2 = min(0.998, t_head + 0.06)
+              t_start = t_head
+              t_end = t_start + INVIS_FRAC
+
+              if t_end <= 1.0:
+                  keyTimes = f"0;{t_start:.4f};{t_start:.4f};{t_end:.4f};1"
+                  values   = "1;1;0;1;1"
+              else:
+                  t_wrap   = t_end - 1.0
+                  keyTimes = f"0;{t_wrap:.4f};{t_wrap:.4f};{t_start:.4f};{t_start:.4f};1"
+                  values   = "0;0;1;1;0;0"
 
               parts.append(f'<g transform="translate({cx:.1f},{cy:.1f})" filter="url(#glow)">')
               parts.append('<use href="#mushroom"/>')
               parts.append(
                   f'<animate attributeName="opacity" '
-                  f'values="1;1;0;1;1" '
-                  f'keyTimes="0;{t1:.4f};{t1:.4f};{t2:.4f};1" '
+                  f'values="{values}" keyTimes="{keyTimes}" '
                   f'dur="{DUR:.2f}s" repeatCount="indefinite"/>'
               )
               parts.append('</g>')
 
-          # ════ ЗМЕЙКА: ГОЛОВА ВПЕРЕДИ, ОГРОМНАЯ ════
+          # ════ ЗМЕЙКА ════
           for i in range(SNAKE_LEN):
-              # i=0 — голова, самая ранняя задержка → она «уходит» вперед
-              delay = -i * SPEED * -1  # т.е. delay = i*SPEED для хвоста
-              # На самом деле: голова ДОЛЖНА опережать — используем отрицательный begin
-              begin = -(SNAKE_LEN - 1 - i) * SPEED  # i=0: -(7)*S, i=7: 0
+              begin = -(SNAKE_LEN - 1 - i) * SPEED
               r = CELL / 2 - 0.5 if i == 0 else CELL / 2 - 2
               color = HEAD if i == 0 else SNAKE
               opacity = 1 if i == 0 else max(0.35, 1 - i * 0.08)
@@ -156,10 +163,9 @@ jobs:
 
           with open('dist/custom-snake.svg', 'w') as f:
               f.write('\n'.join(parts))
-          print('✅ Snake generated')
+          print(f'✅ Snake generated. Cells={L}, DUR={DUR:.1f}s, invis={INVIS_SEC}s')
           PYEOF
 
-      # 4. Пакман → голубика (более насыщенный фиолет)
       - name: Recolor Pacman to blueberry
         run: |
           python3 - << 'EOF'
@@ -176,22 +182,20 @@ jobs:
               if h in ('ffffff','fefefe','fdfdfd','f0f0f0','ebedf0','eeeeee'):
                   return '#' + h
               L = lum(h)
-              if L < 12:  return '#150726'   # почти чёрный → очень тёмный фиолет
-              if L < 55:  return '#2d0f4f'   # тёмно-фиолетовый
-              if L < 110: return '#5c1f9e'   # средний фиолет
-              if L < 175: return '#8c4df5'   # яркая голубика
-              return '#b380ff'               # спелая голубика
+              if L < 12:  return '#150726'
+              if L < 55:  return '#2d0f4f'
+              if L < 110: return '#5c1f9e'
+              if L < 175: return '#8c4df5'
+              return '#b380ff'
 
           for svg in Path('dist').glob('pacman*.svg'):
               txt = svg.read_text()
-              colors = set(re.findall(r'#[0-9a-fA-F]{6}', txt))
-              for c in colors:
+              for c in set(re.findall(r'#[0-9a-fA-F]{6}', txt)):
                   txt = txt.replace(c, blueberry(c))
               svg.write_text(txt)
-              print(f'✅ Blueberry: {svg.name} ({len(colors)} colors)')
+              print(f'✅ Blueberry: {svg.name}')
           EOF
 
-      # 5. Публикация
       - name: Push to output
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
