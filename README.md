@@ -93,67 +93,79 @@
      👾 ПАКМАН (уже перекрашен в неон)
      ═══════════════════════════════════════════════ -->
 
-<!-- 🎮 ARCADE COMMITS -->
+<!-- ═══════════════════════════════════════════════
+     👾 МОИ КОММИТЫ
+     ═══════════════════════════════════════════════ -->
 
 <h2>
-<img src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff">
+  <img
+    src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff"
+    alt="Мои коммиты"
+  />
 </h2>
 
 
-<!-- 🫐 BLUEBERRY PACMAN -->
-
+<!-- ═══════════════════════════════════════════════
+     🫐 PACMAN + BLUEBERRY
+     ═══════════════════════════════════════════════ -->
 
 <p align="center">
 
-<picture>
+  <picture>
 
-<source
-media="(prefers-color-scheme: dark)"
-srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg">
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg"
+    />
 
+    <source
+      media="(prefers-color-scheme: light)"
+      srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg"
+    />
 
-<source
-media="(prefers-color-scheme: light)"
-srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg">
+    <img
+      src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg"
+      alt="Pacman blueberry contribution graph"
+      width="100%"
+    />
 
-
-<img
-src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg"
-alt="Blueberry Pacman"
-width="100%">
-
-
-</picture>
+  </picture>
 
 </p>
 
 
 <p align="center">
 
-🫐 <b>Pacman collecting blueberry commits</b>
+  <sub>
+    🫐 Pacman collects my blueberry commits
+  </sub>
 
 </p>
 
 
+<!-- ═══════════════════════════════════════════════
+     🐍 NEON SNAKE
+     ═══════════════════════════════════════════════ -->
 
-<!-- 🐍 NEON SNAKE -->
+<p align="center">
+
+  <img
+    src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/neon-snake.svg"
+    alt="Neon Snake"
+    width="100%"
+  />
+
+</p>
 
 
 <p align="center">
 
-<img
-src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/neon-snake.svg"
-alt="Neon Snake"
-width="100%">
+  <sub>
+    🐍 Neon Snake · 🍄 Mushroom Hunt
+  </sub>
 
 </p>
 
-
-<p align="center">
-
-🐍 <b>Neon Snake hunting mushrooms</b>
-
-</p>
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
      ═══════════════════════════════════════════════ -->
