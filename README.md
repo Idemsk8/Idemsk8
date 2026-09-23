@@ -16,37 +16,19 @@
 ## 🚀 Обо мне
 
 - 🔭 Сейчас работаю над **личным проектом**
-- 🌱 Изучаю **Rust и Kubernetes**
 - 💬 Спроси меня о **Python, Go, Docker**
-- 📫 Как связаться: **you@example.com**
-- ⚡ Факт: **кофе → код → кофе**
-
+- 📫 Как связаться: **edembekurov@mail.ru**
 ---
 
 ## 🛠 Технологии и инструменты
 
 <p align="left">
-  <img src="https://skillicons.dev/icons?i=python,go,docker,postgres,linux,git,github,vscode,bash,redis" />
+  <img src="https://skillicons.dev/icons?i=python,postgres,git,github,vscode" />
 </p>
 
 ---
 
-## 📊 Статистика
 
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=ТВОЙ_НИК&show_icons=true&theme=tokyonight&hide_border=true&count_private=true" height="165" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ТВОЙ_НИК&layout=compact&theme=tokyonight&hide_border=true" height="165" />
-</p>
-
-<p align="center">
-  <img src="https://streak-stats.demolab.com?user=ТВОЙ_НИК&theme=tokyonight&hide_border=true" />
-</p>
-
-<p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=ТВОЙ_НИК&theme=tokyonight&no-frame=true&row=1&column=6" />
-</p>
-
----
 
 ## 🔗 Связаться со мной
 
@@ -54,7 +36,8 @@
   <a href="https://t.me/demsk8">
     <img src="tg.png" alt="Telegram" width="60" style="margin: 0 10px; border-radius: 12px;" />
   </a>
-  <img src="vkv.jpg" alt="ВКонтакте" width="60" style="margin: 0 10px; border-radius: 12px;" />
+  <a href="https://vk.ru/dem_sk8life">
+    <img src="vkv.jpg" alt="ВКонтакте" width="60" style="margin: 0 10px; border-radius: 12px;" />
   </a>
 </p>
 
