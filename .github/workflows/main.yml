@@ -1,10 +1,10 @@
 name: generate pacman game
 
 on:
-  schedule: # Запуск каждые 24 часа
+  schedule:
     - cron: "0 */24 * * *"
-  workflow_dispatch: # Позволяет запустить вручную
-  push: # Запуск при пуше в main
+  workflow_dispatch:
+  push:
     branches:
       - main
 
@@ -16,12 +16,49 @@ jobs:
     timeout-minutes: 20
 
     steps:
+      # 1. Генерируем оригинальный SVG
       - name: generate pacman-contribution-graph.svg
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
 
-      # Пуш сгенерированных SVG в ветку output
+      # 2. Перекрашиваем все цвета в синий неон
+      - name: Recolor SVG to blue neon
+        run: |
+          python3 - << 'EOF'
+          import re
+          from pathlib import Path
+
+          def brightness(h):
+              h = h.lstrip('#')
+              r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+              return r * 0.299 + g * 0.587 + b * 0.114
+
+          def to_neon(hex_color):
+              h = hex_color.lstrip('#').lower()
+              # Белый оставляем — глаза, фон
+              if h in ('ffffff', 'fefefe', 'fdfdfd', 'f0f0f0'):
+                  return '#' + h
+              # Почти чёрный → глубокий синий фон
+              if brightness(h) < 15:
+                  return '#05070f'
+              b = brightness(h)
+              if b < 60:  return '#0a1122'   # тёмно-синий фон
+              if b < 110: return '#0a2a4d'   # тёмные клетки
+              if b < 160: return '#0066cc'   # средний синий
+              if b < 210: return '#00aaff'   # яркий синий
+              return '#00d4ff'               # неон (Пакман, точки)
+
+          for svg in Path('dist').glob('*.svg'):
+              content = svg.read_text()
+              colors = set(re.findall(r'#[0-9a-fA-F]{6}', content))
+              for c in colors:
+                  content = content.replace(c, to_neon(c))
+              svg.write_text(content)
+              print(f'✅ Recolored: {svg.name}')
+          EOF
+
+      # 3. Публикуем перекрашенный SVG в ветку output
       - name: push pacman-contribution-graph.svg to the output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
