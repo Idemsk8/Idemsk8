@@ -29,17 +29,16 @@ jobs:
       - name: Create dist folder
         run: mkdir -p dist
 
-      # ═══════════ НЕОНОВАЯ ЗМЕЙКА С ГРИБАМИ v3 ═══════════
-      - name: Generate neon snake with mushrooms
+      # ═══════════ ЗМЕЙКА v4 — БОЛЬШОЙ КРУГ ═══════════
+      - name: Generate neon snake
         run: |
           python3 - << 'PYEOF'
           import random
 
-          # ═══ НАСТРОЙКИ ═══
           COLS, ROWS = 53, 7
           CELL, GAP  = 11, 2
           SNAKE_LEN  = 8
-          NUM_DOTS   = 20       # ← ТОЛЬКО 20 грибов
+          NUM_DOTS   = 20
           SPEED      = 0.18
 
           BG_COLOR      = "#05070f"
@@ -53,43 +52,35 @@ jobs:
           W = COLS * (CELL + GAP)
           H = ROWS * (CELL + GAP)
 
-          # ═══ ПЛАВНЫЙ БОЛЬШОЙ КРУГ (по спирали) ═══
-          # Идём по внешнему периметру, потом по внутреннему — как круг
+          # ═══ БОЛЬШОЙ КРУГ ПО ПЕРИМЕТРУ ═══
           path = []
-          visited = set()
+          # верх: слева → направо
+          for c in range(COLS):
+              path.append((c, 0))
+          # право: сверху → вниз
+          for r in range(1, ROWS):
+              path.append((COLS - 1, r))
+          # низ: справа → налево
+          for c in range(COLS - 2, -1, -1):
+              path.append((c, ROWS - 1))
+          # лево: снизу → вверх
+          for r in range(ROWS - 2, 0, -1):
+              path.append((0, r))
+          # замыкаем круг
+          path.append((0, 0))
 
-          def add_ring(r1, r2, c1, c2):
-              # верхняя строка слева → направо
-              for c in range(c1, c2 + 1):
-                  if (c, r1) not in visited:
-                      path.append((c, r1)); visited.add((c, r1))
-              # правая колонка сверху → вниз
-              for r in range(r1 + 1, r2 + 1):
-                  if (c2, r) not in visited:
-                      path.append((c2, r)); visited.add((c2, r))
-              # нижняя строка справа → налево
-              for c in range(c2 - 1, c1 - 1, -1):
-                  if (c, r2) not in visited:
-                      path.append((c, r2)); visited.add((c, r2))
-              # левая колонка снизу → вверх
-              for r in range(r2 - 1, r1, -1):
-                  if (c1, r) not in visited:
-                      path.append((c1, r)); visited.add((c1, r))
+          L = len(path)
+          cell_time = {cell: i / L for i, cell in enumerate(path)}
+          DUR = L * SPEED
+          # сколько секунд голова «убежала» вперёд хвоста
+          HEAD_OFFSET_FRACTION = (SNAKE_LEN - 1) / L
 
-          # Спираль: сужаемся к центру
-          top, bottom, left, right = 0, ROWS - 1, 0, COLS - 1
-          while top <= bottom and left <= right:
-              add_ring(top, bottom, left, right)
-              top += 1; bottom -= 1; left += 1; right -= 1
-
-          cell_time = {cell: i / len(path) for i, cell in enumerate(path)}
-          DUR = len(path) * SPEED
-
-          # ═══ 20 ГРИБОВ ═══
+          # ═══ 20 ГРИБОВ (только на клетках периметра — чтобы змейка их точно съела) ═══
           random.seed()
+          perimeter = list(set(path))
           dots = set()
           while len(dots) < NUM_DOTS:
-              dots.add((random.randint(0, COLS - 1), random.randint(0, ROWS - 1)))
+              dots.add(random.choice(perimeter))
 
           def xy(c, r):
               return c * (CELL + GAP) + CELL / 2, r * (CELL + GAP) + CELL / 2
@@ -125,13 +116,17 @@ jobs:
                       f'rx="2" fill="{CELL_COLOR}" stroke="#0a2a4d" stroke-width="0.5"/>'
                   )
 
-          # 🍄 Грибы: исчезают ровно в момент, когда змейка их ест,
-          # и через короткий промежуток «респавнятся»
+          # 🍄 Грибы — исчезают ТОЧНО под головой (с учётом её опережения)
           for (col, row) in dots:
               cx, cy = xy(col, row)
-              t_eat = cell_time[(col, row)]
-              t1 = max(0.001, t_eat - 0.001)
-              t2 = min(0.999, t_eat + 0.02)   # короткое окно невидимости
+              t_tail = cell_time[(col, row)]            # когда тут будет хвост
+              t_head = t_tail - HEAD_OFFSET_FRACTION    # а тут — голова
+
+              if t_head < 0:
+                  t_head += 1.0                          # голова прошла тут в конце цикла
+
+              t1 = max(0.001, min(0.999, t_head - 0.002))
+              t2 = min(0.999, t1 + 0.015)
 
               parts.append(f'<g transform="translate({cx:.1f},{cy:.1f})" filter="url(#glow)">')
               parts.append('<use href="#mushroom"/>')
@@ -143,11 +138,10 @@ jobs:
               )
               parts.append('</g>')
 
-          # 🐍 Голова вперёд — ИСПРАВЛЕНО
+          # 🐍 Тело: голова (i=0) идёт ПЕРВОЙ
           for i in range(SNAKE_LEN):
-              # i=0 голова → самая «ранняя» позиция = самый отрицательный begin
               delay = -(SNAKE_LEN - 1 - i) * SPEED
-              opacity = max(0.25, 1 - i * 0.1)
+              opacity = max(0.3, 1 - i * 0.08)
               r = CELL / 2 - 0.5 if i == 0 else CELL / 2 - 1.5
               color = HEAD_COLOR if i == 0 else SNAKE_COLOR
               parts.append(
@@ -161,10 +155,10 @@ jobs:
 
           with open('dist/custom-snake.svg', 'w') as f:
               f.write('\n'.join(parts))
-          print('✅ Neon snake generated')
+          print('✅ Snake v4 generated')
           PYEOF
 
-      # ═══════════ ПЕРЕКРАСКА ПАКМАНА → ГОЛУБИКА ═══════════
+      # ═══════════ ПАКМАН → ГОЛУБИКА ═══════════
       - name: Recolor Pacman to blueberry
         run: |
           python3 - << 'EOF'
@@ -178,16 +172,15 @@ jobs:
 
           def to_blueberry(hex_color):
               h = hex_color.lstrip('#').lower()
-              # Белый оставляем для глаз
               if h in ('ffffff', 'fefefe', 'fdfdfd', 'f0f0f0'):
                   return '#' + h
               b = brightness(h)
-              if b < 15:  return '#05070f'   # фон
-              if b < 60:  return '#0a1122'   # тёмный фон
-              if b < 110: return '#1a1a4e'   # тёмная голубика
-              if b < 160: return '#3b3b98'   # средняя голубика
-              if b < 210: return '#6666cc'   # светлая голубика
-              return '#8a8aff'               # яркая голубика (спелая)
+              if b < 15:  return '#05070f'
+              if b < 60:  return '#0a1122'
+              if b < 110: return '#1a1a4e'
+              if b < 160: return '#3b3b98'
+              if b < 210: return '#6666cc'
+              return '#8a8aff'
 
           for svg in Path('dist').glob('pacman*.svg'):
               content = svg.read_text()
