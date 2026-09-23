@@ -113,10 +113,6 @@
   <img alt="neon snake" width="100%"
        src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/custom-snake.svg">
 </p>
-<!-- 📊 Запасной график вкладов (если что-то не сработает) -->
-<p align="center">
-  <img src="https://ghchart.rshah.org/00d4ff/Idemsk8" alt="Contribution graph" />
-</p>
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
      ═══════════════════════════════════════════════ -->
