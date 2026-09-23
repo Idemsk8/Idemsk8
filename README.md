@@ -77,10 +77,9 @@
 </h2>
 
 <p align="center">
-  <img height="165"
-       src="https://github-readme-stats.vercel.app/api?username=Idemsk8&show_icons=true&hide_border=true&count_private=true&bg_color=05070f&title_color=00d4ff&icon_color=00d4ff&text_color=cfe9ff&border_color=00d4ff" />
-  <img height="165"
-       src="https://github-readme-stats.vercel.app/api/top-langs/?username=Idemsk8&layout=compact&hide_border=true&bg_color=05070f&title_color=00d4ff&text_color=cfe9ff&border_color=00d4ff" />
+  <img src="https://img.shields.io/badge/📦_Repositories-Idemsk8-00d4ff?style=for-the-badge&labelColor=05070f&logo=github" />
+  <img src="https://img.shields.io/badge/🔥_Contributions-40+-00d4ff?style=for-the-badge&labelColor=05070f&logo=github" />
+  <img src="https://img.shields.io/badge/⭐_Streak-3_days-00d4ff?style=for-the-badge&labelColor=05070f&logo=github" />
 </p>
 
 <p align="center">
