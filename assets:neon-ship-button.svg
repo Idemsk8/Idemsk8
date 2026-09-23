@@ -1,0 +1,105 @@
+<svg width="180" height="90" viewBox="0 0 180 90" xmlns="http://www.w3.org/2000/svg">
+
+<defs>
+
+    <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+
+        <feMerge>
+            <feMergeNode in="blur"></feMergeNode>
+            <feMergeNode in="SourceGraphic"></feMergeNode>
+        </feMerge>
+    </filter>
+
+    <linearGradient id="ship" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#a0f0ff"></stop>
+
+        <stop offset="1" stop-color="#00d4ff"></stop>
+    </linearGradient>
+
+</defs>
+
+
+<!-- маленькое свечение -->
+
+<ellipse cx="90" cy="70" rx="42" ry="7" fill="#00d4ff" opacity=".15">
+    <animate attributeName="rx" values="35;48;35" dur="1.2s" repeatCount="indefinite"></animate>
+</ellipse>
+
+
+<!-- корабль -->
+
+<g filter="url(#glow)">
+
+    <!-- лёгкое движение -->
+
+    <animateTransform attributeName="transform" type="translate" values="0 2;0 -2;0 2" dur="1.5s" repeatCount="indefinite"></animateTransform>
+
+    <!-- корпус -->
+
+    <path d="
+        M90 10
+        L111 58
+        L98 52
+        L90 66
+        L82 52
+        L69 58
+        Z
+        " fill="url(#ship)" stroke="#a0f0ff" stroke-width="1.5"></path>
+
+    <!-- кабина -->
+
+    <path d="
+        M90 24
+        L98 46
+        L82 46
+        Z
+        " fill="#06121d" stroke="#a0f0ff" stroke-width="1"></path>
+
+    <!-- левое крыло -->
+
+    <path d="
+        M69 58
+        L52 63
+        L67 43
+        L76 51
+        Z
+        " fill="#078db8"></path>
+
+    <!-- правое крыло -->
+
+    <path d="
+        M111 58
+        L128 63
+        L113 43
+        L104 51
+        Z
+        " fill="#078db8"></path>
+
+    <!-- двигатель -->
+
+    <rect x="83" y="58" width="14" height="9" rx="4" fill="#dffcff"></rect>
+
+    <!-- огонь -->
+
+    <path d="
+        M85 66
+        L90 82
+        L95 66
+        Z
+        " fill="#00d4ff">
+
+        <animate attributeName="opacity" values="1;.35;1" dur=".35s" repeatCount="indefinite"></animate>
+
+    </path>
+
+</g>
+
+
+<!-- текст -->
+
+<text x="90" y="88" text-anchor="middle" fill="#a0f0ff" font-family="Arial, sans-serif" font-size="8" font-weight="bold" letter-spacing="1.5">
+    NEON INVADERS
+</text>
+
+</svg>
