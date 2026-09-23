@@ -191,68 +191,53 @@ jobs:
         run: |
           python3 - << 'EOF'
           import re
-          from collections import Counter
           from pathlib import Path
+
+          # ═══════════════════════════════════════════════
+          #  КАРТА ЗАМЕНЫ ЦВЕТОВ → ГОЛУБИКА
+          #  Логика: каждый исходный цвет → оттенок голубики
+          # ═══════════════════════════════════════════════
+
+          DARK_MAP = {
+              # фон и сетка → тёмный фиолет (фон голубичной поляны)
+              '#0d1117': '#05070f',
+              '#161b22': '#1a0a3d',
+              # точки, которые ест Пакман → яркая спелая голубика
+              '#ffffff': '#c07aff',
+              # линии лабиринта → средний фиолет
+              '#8b949e': '#6b2fa0',
+              # активные вклады (зелёные) → сочная голубика
+              '#39d353': '#9c4de0',
+              '#26a641': '#7a35c0',
+          }
+
+          LIGHT_MAP = {
+              '#ffffff': '#f5eeff',   # фон → очень светлый лавандовый
+              '#ebedf0': '#e0d5f5',   # сетка → светлый фиолет
+              '#000000': '#5c1f9e',   # точки → тёмно-фиолетовый
+              '#57606a': '#7a35c0',   # линии → средний фиолет
+              '#216e39': '#9c4de0',   # вклады → голубика
+              '#30a14e': '#7a35c0',
+              '#808080': '#8a8aff',
+          }
 
           for svg in Path('dist').glob('pacman*.svg'):
               txt = svg.read_text()
-              print(f'\n══════════ {svg.name} ══════════')
-              print(f'Размер файла: {len(txt)} символов')
+              is_dark = '-dark' in svg.name
+              cmap = DARK_MAP if is_dark else LIGHT_MAP
 
-              # ═══ Уникальные цвета в fill ═══
-              fills = Counter(re.findall(r'fill\s*=\s*"([^"]+)"', txt))
-              print(f'\n📌 fill="..." (топ-10):')
-              for v, n in fills.most_common(10):
-                  print(f'    {v}  →  {n}')
+              replaced = 0
+              for old, new in cmap.items():
+                  # Регистронезависимая замена hex
+                  pattern = re.compile(re.escape(old), re.IGNORECASE)
+                  count = len(pattern.findall(txt))
+                  if count > 0:
+                      txt = pattern.sub(new, txt)
+                      replaced += count
+                      print(f'  {old} → {new}  ({count} шт.)')
 
-              # ═══ Уникальные цвета в style ═══
-              styles = Counter(re.findall(r'style\s*=\s*"([^"]*)"', txt))
-              print(f'\n📌 style="..." (топ-5):')
-              for v, n in styles.most_common(5):
-                  print(f'    {v[:80]}  →  {n}')
-
-              # ═══ Классы ═══
-              classes = Counter(re.findall(r'class\s*=\s*"([^"]+)"', txt))
-              print(f'\n📌 class="..." (топ-10):')
-              for v, n in classes.most_common(10):
-                  print(f'    {v}  →  {n}')
-
-              # ═══ Есть ли <style> блок ═══
-              style_block = re.search(r'<style[^>]*>(.*?)</style>', txt, re.DOTALL)
-              if style_block:
-                  print(f'\n📌 <style> блок (первые 800 символов):')
-                  print(style_block.group(1)[:800])
-              else:
-                  print(f'\n📌 <style> блок: НЕТ')
-
-              # ═══ Типы элементов ═══
-              tags = Counter(re.findall(r'<(\w+)', txt))
-              print(f'\n📌 Топ-15 тегов:')
-              for v, n in tags.most_common(15):
-                  print(f'    <{v}>  →  {n}')
-
-              # ═══ Все уникальные цвета в тексте файла (hex) ═══
-              hexes = Counter(re.findall(r'#[0-9a-fA-F]{6}', txt))
-              print(f'\n📌 Все hex-цвета в файле (топ-15):')
-              for v, n in hexes.most_common(15):
-                  print(f'    {v}  →  {n}')
-
-              # ═══ Первые 500 символов одного <rect> ═══
-              first_rect = re.search(r'<rect[^>]*>', txt)
-              if first_rect:
-                  print(f'\n📌 Пример первого <rect>:')
-                  print(f'    {first_rect.group(0)[:300]}')
-
-              # ═══ Первые 500 символов одного <path> ═══
-              first_path = re.search(r'<path[^>]*>', txt)
-              if first_path:
-                  print(f'\n📌 Пример первого <path>:')
-                  print(f'    {first_path.group(0)[:300]}')
-
-              # ═══ Первые 300 символов файла ═══
-              print(f'\n📌 Первые 300 символов файла:')
-              print(txt[:300])
-              print()
+              svg.write_text(txt)
+              print(f'✅ {svg.name}: заменено {replaced} цветов\n')
           EOF
       - name: Push to output
         uses: crazy-max/ghaction-github-pages@v3.1.0
