@@ -4,7 +4,7 @@
 <div align="center">
 
 <p align="center">
-  <img src="avatar.png" width="140" 
+  <img src="avatar.png" width="240" 
        style="border-radius: 50%; border: 3px solid #00d4ff; 
               box-shadow: 0 0 20px #00d4ff, 0 0 40px rgba(0,212,255,0.5);" 
        alt="avatar" />
@@ -34,10 +34,6 @@
     <td>Работаю над личным проектом</td>
   </tr>
   <tr>
-    <td>💬 <b>Спроси меня</b></td>
-    <td>Python · Go · Docker · PostgreSQL</td>
-  </tr>
-  <tr>
     <td>📫 <b>Связаться</b></td>
     <td><a href="mailto:edembekurov@mail.ru">edembekurov@mail.ru</a></td>
   </tr>
@@ -56,7 +52,7 @@
 
 <p align="center">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=python,go,docker,postgres,linux,git,github,vscode,bash,redis&theme=dark" />
+    <img src="https://skillicons.dev/icons?i=python,postgres,linux,git,github,vscode&theme=dark" />
   </a>
 </p>
 
@@ -103,18 +99,25 @@
      ═══════════════════════════════════════════════ -->
 <a align="left">
   <a href="https://idemsk8.github.io/minesweeper/" target="_blank">
-    <img src="bomb.svg" alt="Играть в Сапёра" width="180" />
+    <img src="bomb.svg" alt="Играть в Сапёра" width="210" />
   </a>
 
      
 <a href="https://Idemsk8.github.io/Idemsk8/games/neon-road.html">
     <img
       src="./assets/neon-car-button.svg"
-      width="520"
+      width="490"
       alt="Start Neon Road"
     />
   </a>
 </a>
+<a href="https://Idemsk8.github.io/Idemsk8/games/neon-invaders.html">
+    <img
+      src="./assets/neon-ship-button.svg"
+      width="300"
+      alt="Play Neon Invaders"
+    />
+  </a>
 
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
