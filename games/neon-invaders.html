@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON INVADERS</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at center, #0b1725 0%, #05070f 55%, #020308 100%);
+    color: #a0f0ff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game {
+    width: 440px;
+    max-width: 94vw;
+    text-align: center;
+}
+
+.title {
+    color: #00d4ff;
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+    text-shadow:
+        0 0 8px #00d4ff,
+        0 0 25px #006b9c;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    background: #07111c;
+    border: 1px solid #123b55;
+    border-radius: 10px;
+    font-family: monospace;
+}
+
+.label {
+    color: #62869a;
+}
+
+.value {
+    color: #00d4ff;
+    font-weight: bold;
+}
+
+#record {
+    color: #a0f0ff;
+}
+
+.game-box {
+    position: relative;
+    width: 100%;
+    height: 620px;
+    overflow: hidden;
+    border: 2px solid #006b9c;
+    border-radius: 14px;
+    background: #02050a;
+    box-shadow:
+        0 0 18px rgba(0,212,255,.25),
+        inset 0 0 35px rgba(0,212,255,.08);
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.message {
+    position: absolute;
+    inset: 0;
+    background: rgba(2,5,10,.86);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.message.hidden {
+    display: none;
+}
+
+.message h2 {
+    color: #00d4ff;
+    font-size: 30px;
+    letter-spacing: 3px;
+    margin: 0 0 10px;
+    text-shadow: 0 0 15px #00d4ff;
+}
+
+.message p {
+    color: #8eb6c7;
+    line-height: 1.7;
+    margin: 4px;
+}
+
+button {
+    margin-top: 16px;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: 1px solid #00d4ff;
+    background: #071827;
+    color: #a0f0ff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0b3045;
+    box-shadow: 0 0 15px rgba(0,212,255,.4);
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.control {
+    width: 105px;
+    height: 46px;
+    margin: 0;
+    font-size: 20px;
+}
+
+.help {
+    margin-top: 10px;
+    color: #537080;
+    font-size: 12px;
+}
+
+.new-record {
+    color: #00d4ff !important;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00d4ff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <div class="title">NEON INVADERS</div>
+
+    <div class="stats">
+        <div>
+            <span class="label">SCORE</span>
+            <span class="value" id="score">0</span>
+        </div>
+
+        <div>
+            <span class="label">LEVEL</span>
+            <span class="value" id="level">1</span>
+        </div>
+
+        <div>
+            <span class="label">RECORD</span>
+            <span class="value" id="record">0</span>
+        </div>
+    </div>
+
+    <div class="game-box">
+
+        <canvas id="game"></canvas>
+
+        <div class="message" id="message">
+
+            <h2 id="messageTitle">NEON INVADERS</h2>
+
+            <p id="messageText">
+                Уничтожай врагов и не дай им добраться до тебя.
+            </p>
+
+            <button id="start">
+                START
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button class="control" id="left">←</button>
+        <button class="control" id="fire">🔥 FIRE</button>
+        <button class="control" id="right">→</button>
+    </div>
+
+    <div class="help">
+        ← → / A D — движение &nbsp; • &nbsp; SPACE — огонь
+    </div>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const scoreEl = document.getElementById("score");
+const levelEl = document.getElementById("level");
+const recordEl = document.getElementById("record");
+
+const message = document.getElementById("message");
+const messageTitle = document.getElementById("messageTitle");
+const messageText = document.getElementById("messageText");
+const startButton = document.getElementById("start");
+
+const leftButton = document.getElementById("left");
+const rightButton = document.getElementById("right");
+const fireButton = document.getElementById("fire");
+
+let width;
+let height;
+
+let player;
+let bullets = [];
+let enemies = [];
+let particles = [];
+
+let score = 0;
+let level = 1;
+
+let record =
+    Number(localStorage.getItem("neonInvadersRecord")) || 0;
+
+let running = false;
+
+let lastTime = 0;
+let enemyDirection = 1;
+let enemySpeed = 35;
+let enemyDrop = 18;
+
+let leftPressed = false;
+let rightPressed = false;
+let firePressed = false;
+
+let shootTimer = 0;
+
+recordEl.textContent = record;
+
+
+/* Размер canvas */
+
+function resize() {
+
+    const rect = canvas.getBoundingClientRect();
+
+    width = rect.width;
+    height = rect.height;
+
+    const ratio = window.devicePixelRatio || 1;
+
+    canvas.width = width * ratio;
+    canvas.height = height * ratio;
+
+    ctx.setTransform(
+        ratio,
+        0,
+        0,
+        ratio,
+        0,
+        0
+    );
+
+}
+
+window.addEventListener("resize", resize);
+
+
+/* Игрок */
+
+function createPlayer() {
+
+    return {
+
+        x: width / 2,
+
+        y: height - 55,
+
+        width: 42,
+
+        height: 28,
+
+        speed: 6
+
+    };
+
+}
+
+
+/* Создание врагов */
+
+function createEnemies() {
+
+    enemies = [];
+
+    const columns = Math.min(
+        7,
+        4 + level
+    );
+
+    const rows = Math.min(
+        5,
+        2 + Math.floor(level / 2)
+    );
+
+    const spacingX = 52;
+    const spacingY = 45;
+
+    const startX =
+        width / 2 -
+        ((columns - 1) * spacingX) / 2;
+
+    for (let row = 0; row < rows; row++) {
+
+        for (let col = 0; col < columns; col++) {
+
+            enemies.push({
+
+                x: startX + col * spacingX,
+
+                y: 65 + row * spacingY,
+
+                width: 30,
+
+                height: 24,
+
+                alive: true
+
+            });
+
+        }
+
+    }
+
+}
+
+
+/* Старт */
+
+function startGame() {
+
+    resize();
+
+    score = 0;
+
+    level = 1;
+
+    enemySpeed = 35;
+
+    enemyDirection = 1;
+
+    bullets = [];
+
+    particles = [];
+
+    player = createPlayer();
+
+    createEnemies();
+
+    running = true;
+
+    shootTimer = 0;
+
+    scoreEl.textContent = "0";
+
+    levelEl.textContent = "1";
+
+    message.classList.add("hidden");
+
+    lastTime = performance.now();
+
+    requestAnimationFrame(gameLoop);
+
+}
+
+
+/* Следующий уровень */
+
+function nextLevel() {
+
+    level++;
+
+    levelEl.textContent = level;
+
+    enemySpeed += 12;
+
+    bullets = [];
+
+    createEnemies();
+
+}
+
+
+/* Конец */
+
+function gameOver(reason) {
+
+    running = false;
+
+    const finalScore = Math.floor(score);
+
+    let newRecord = false;
+
+    if (finalScore > record) {
+
+        record = finalScore;
+
+        localStorage.setItem(
+            "neonInvadersRecord",
+            record
+        );
+
+        recordEl.textContent = record;
+
+        newRecord = true;
+
+    }
+
+    messageTitle.textContent = reason;
+
+    messageText.innerHTML =
+        "Счёт: <b>" + finalScore + "</b>" +
+        "<br>Уровень: <b>" + level + "</b>" +
+        "<br>Рекорд: <b>" + record + "</b>" +
+        (
+            newRecord
+            ? '<br><span class="new-record">★ НОВЫЙ РЕКОРД ★</span>'
+            : ""
+        );
+
+    startButton.textContent = "PLAY AGAIN";
+
+    message.classList.remove("hidden");
+
+}
+
+
+/* Игрок */
+
+function drawPlayer() {
+
+    ctx.save();
+
+    ctx.translate(
+        player.x,
+        player.y
+    );
+
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = "#00d4ff";
+
+    /* корпус */
+
+    ctx.fillStyle = "#00d4ff";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        0,
+        -20
+    );
+
+    ctx.lineTo(
+        -23,
+        14
+    );
+
+    ctx.lineTo(
+        -8,
+        9
+    );
+
+    ctx.lineTo(
+        0,
+        17
+    );
+
+    ctx.lineTo(
+        8,
+        9
+    );
+
+    ctx.lineTo(
+        23,
+        14
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    /* кабина */
+
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = "#071827";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        0,
+        -12
+    );
+
+    ctx.lineTo(
+        -7,
+        5
+    );
+
+    ctx.lineTo(
+        7,
+        5
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    /* двигатель */
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.fillRect(
+        -4,
+        9,
+        8,
+        6
+    );
+
+    ctx.restore();
+
+}
+
+
+/* Враг */
+
+function drawEnemy(enemy) {
+
+    ctx.save();
+
+    ctx.translate(
+        enemy.x,
+        enemy.y
+    );
+
+    ctx.shadowBlur = 14;
+    ctx.shadowColor = "#ff2875";
+
+    ctx.fillStyle = "#d92f69";
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        -15,
+        -11,
+        30,
+        22,
+        5
+    );
+
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = "#05070f";
+
+    ctx.fillRect(
+        -9,
+        -5,
+        6,
+        6
+    );
+
+    ctx.fillRect(
+        3,
+        -5,
+        6,
+        6
+    );
+
+    ctx.fillStyle = "#ff9ab5";
+
+    ctx.fillRect(
+        -11,
+        7,
+        22,
+        3
+    );
+
+    ctx.restore();
+
+}
+
+
+/* Пуля */
+
+function drawBullet(bullet) {
+
+    ctx.save();
+
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = "#a0f0ff";
+
+    ctx.fillStyle = "#a0f0ff";
+
+    ctx.fillRect(
+        bullet.x - 2,
+        bullet.y,
+        4,
+        13
+    );
+
+    ctx.restore();
+
+}
+
+
+/* Взрыв */
+
+function createExplosion(x, y) {
+
+    for (let i = 0; i < 10; i++) {
+
+        particles.push({
+
+            x: x,
+
+            y: y,
+
+            vx:
+                (Math.random() - .5) * 5,
+
+            vy:
+                (Math.random() - .5) * 5,
+
+            life: 1
+
+        });
+
+    }
+
+}
+
+
+function drawParticles(delta) {
+
+    particles.forEach(p => {
+
+        p.x += p.vx * delta;
+        p.y += p.vy * delta;
+
+        p.life -= .035 * delta;
+
+        ctx.globalAlpha =
+            Math.max(0, p.life);
+
+        ctx.fillStyle = "#00d4ff";
+
+        ctx.fillRect(
+            p.x,
+            p.y,
+            3,
+            3
+        );
+
+    });
+
+    ctx.globalAlpha = 1;
+
+    particles =
+        particles.filter(
+            p => p.life > 0
+        );
+
+}
+
+
+/* Фон */
+
+function drawBackground() {
+
+    ctx.fillStyle = "#02050a";
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+    /* звёзды */
+
+    for (let i = 0; i < 45; i++) {
+
+        const x =
+            (i * 83) % width;
+
+        const y =
+            (i * 137 +
+             performance.now() * .025) %
+            height;
+
+        ctx.fillStyle =
+            i % 4 === 0
+            ? "#00d4ff"
+            : "#163346";
+
+        ctx.fillRect(
+            x,
+            y,
+            2,
+            2
+        );
+
+    }
+
+}
+
+
+/* Стрельба */
+
+function shoot() {
+
+    if (!running) return;
+
+    bullets.push({
+
+        x: player.x,
+
+        y: player.y - 25,
+
+        speed: 9
+
+    });
+
+}
+
+
+/* Обновление */
+
+function update(delta) {
+
+    /* движение игрока */
+
+    if (leftPressed) {
+
+        player.x -=
+            player.speed * delta;
+
+    }
+
+    if (rightPressed) {
+
+        player.x +=
+            player.speed * delta;
+
+    }
+
+
+    player.x = Math.max(
+        25,
+        Math.min(
+            width - 25,
+            player.x
+        )
+    );
+
+
+    /* автоматическая стрельба */
+
+    shootTimer += delta;
+
+    if (firePressed && shootTimer > 8) {
+
+        shoot();
+
+        shootTimer = 0;
+
+    }
+
+
+    /* пули */
+
+    bullets.forEach(
+        bullet => {
+
+            bullet.y -=
+                bullet.speed * delta;
+
+        }
+    );
+
+
+    bullets =
+        bullets.filter(
+            bullet =>
+                bullet.y > -30
+        );
+
+
+    /* движение врагов */
+
+    let hitEdge = false;
+
+    enemies.forEach(
+        enemy => {
+
+            enemy.x +=
+                enemyDirection *
+                enemySpeed *
+                delta / 60;
+
+            if (
+                enemy.x < 25 ||
+                enemy.x > width - 25
+            ) {
+
+                hitEdge = true;
+
+            }
+
+        }
+    );
+
+
+    if (hitEdge) {
+
+        enemyDirection *= -1;
+
+        enemies.forEach(
+            enemy => {
+
+                enemy.y += enemyDrop;
+
+            }
+        );
+
+    }
+
+
+    /* столкновения пуль */
+
+    for (
+        let b = bullets.length - 1;
+        b >= 0;
+        b--
+    ) {
+
+        const bullet = bullets[b];
+
+        for (
+            let e = enemies.length - 1;
+            e >= 0;
+            e--
+        ) {
+
+            const enemy = enemies[e];
+
+            if (
+
+                Math.abs(
+                    bullet.x - enemy.x
+                ) < 20
+
+                &&
+
+                Math.abs(
+                    bullet.y - enemy.y
+                ) < 18
+
+            ) {
+
+                createExplosion(
+                    enemy.x,
+                    enemy.y
+                );
+
+                bullets.splice(b, 1);
+
+                enemies.splice(e, 1);
+
+                score += 10;
+
+                scoreEl.textContent =
+                    Math.floor(score);
+
+                break;
+
+            }
+
+        }
+
+    }
+
+
+    /* враги дошли до игрока */
+
+    for (const enemy of enemies) {
+
+        if (
+            enemy.y >
+            player.y - 30
+        ) {
+
+            gameOver(
+                "INVASION!"
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    /* уничтожены все */
+
+    if (enemies.length === 0) {
+
+        nextLevel();
+
+    }
+
+
+    drawParticles(delta);
+
+}
+
+
+/* Рендер */
+
+function draw() {
+
+    drawBackground();
+
+    enemies.forEach(
+        drawEnemy
+    );
+
+    bullets.forEach(
+        drawBullet
+    );
+
+    drawPlayer();
+
+}
+
+
+/* Игровой цикл */
+
+function gameLoop(time) {
+
+    if (!running) return;
+
+    const delta =
+        Math.min(
+            time - lastTime,
+            40
+        ) / 16.67;
+
+    lastTime = time;
+
+    update(delta);
+
+    draw();
+
+    if (running) {
+
+        requestAnimationFrame(
+            gameLoop
+        );
+
+    }
+
+}
+
+
+/* Клавиатура */
+
+window.addEventListener(
+    "keydown",
+    event => {
+
+        const key =
+            event.key.toLowerCase();
+
+        if (
+            key === "arrowleft" ||
+            key === "a"
+        ) {
+
+            leftPressed = true;
+
+        }
+
+        if (
+            key === "arrowright" ||
+            key === "d"
+        ) {
+
+            rightPressed = true;
+
+        }
+
+        if (
+            key === " " ||
+            key === "spacebar"
+        ) {
+
+            firePressed = true;
+
+            event.preventDefault();
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    event => {
+
+        const key =
+            event.key.toLowerCase();
+
+        if (
+            key === "arrowleft" ||
+            key === "a"
+        ) {
+
+            leftPressed = false;
+
+        }
+
+        if (
+            key === "arrowright" ||
+            key === "d"
+        ) {
+
+            rightPressed = false;
+
+        }
+
+        if (
+            key === " " ||
+            key === "spacebar"
+        ) {
+
+            firePressed = false;
+
+        }
+
+    }
+);
+
+
+/* Сенсорные кнопки */
+
+function holdButton(
+    button,
+    direction
+) {
+
+    button.addEventListener(
+        "pointerdown",
+        event => {
+
+            event.preventDefault();
+
+            if (direction === "left")
+                leftPressed = true;
+
+            if (direction === "right")
+                rightPressed = true;
+
+            if (direction === "fire")
+                firePressed = true;
+
+        }
+    );
+
+
+    const release = () => {
+
+        if (direction === "left")
+            leftPressed = false;
+
+        if (direction === "right")
+            rightPressed = false;
+
+        if (direction === "fire")
+            firePressed = false;
+
+    };
+
+
+    button.addEventListener(
+        "pointerup",
+        release
+    );
+
+    button.addEventListener(
+        "pointerleave",
+        release
+    );
+
+    button.addEventListener(
+        "pointercancel",
+        release
+    );
+
+}
+
+
+holdButton(
+    leftButton,
+    "left"
+);
+
+holdButton(
+    rightButton,
+    "right"
+);
+
+holdButton(
+    fireButton,
+    "fire"
+);
+
+
+/* START */
+
+startButton.addEventListener(
+    "click",
+    startGame
+);
+
+
+resize();
+
+</script>
+
+</body>
+</html>
