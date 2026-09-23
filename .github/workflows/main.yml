@@ -203,20 +203,7 @@ jobs:
                   f'</g>'
               )
 
-          SHADES = {
-              'low':  '#3b1a5c',
-              'mid':  '#6b2fa0',
-              'high': '#9c4de0',
-              'max':  '#c07aff',
-          }
-
-          def pick_shade(r, g, b):
-              lum = r*0.299 + g*0.587 + b*0.114
-              if lum < 40:  return None
-              if lum < 80:  return SHADES['low']
-              if lum < 130: return SHADES['mid']
-              if lum < 180: return SHADES['high']
-              return SHADES['max']
+          SHADES = ['#3b1a5c', '#6b2fa0', '#9c4de0', '#c07aff']
 
           def hex_to_rgb(h):
               h = h.lstrip('#').lower()
@@ -232,7 +219,7 @@ jobs:
           for svg in Path('dist').glob('pacman*.svg'):
               txt = svg.read_text()
 
-              # ─── Проход 1: собираем статистику размеров rect ───
+              # ═══ 1. Собираем все rect ═══
               sizes = Counter()
               rects_data = []
 
@@ -245,67 +232,85 @@ jobs:
                       h = round(float(attrs.get('height', 0)), 1)
                   except (ValueError, TypeError):
                       continue
+                  fill = attrs.get('fill', '').lower()
                   sizes[(w, h)] += 1
-                  rects_data.append((x, y, w, h, attrs.get('fill', '')))
+                  rects_data.append((x, y, w, h, fill))
 
-              # ─── Отладка: показываем топ-5 размеров ───
-              print(f'📊 {svg.name}: размеры rect (top-5):')
-              for (w, h), cnt in sizes.most_common(5):
-                  print(f'    {w}×{h}  →  {cnt} шт.')
-
-              # ─── Автовыбор размера клетки: самый частый ───
+              # ═══ 2. Определяем размер клетки (самый частый) ═══
               if not sizes:
                   print(f'❌ {svg.name}: rect не найдены')
                   continue
-
-              cell_size, count = sizes.most_common(1)[0]
+              cell_size, _ = sizes.most_common(1)[0]
               cw, ch = cell_size
-              print(f'🎯 Выбран размер клетки: {cw}×{ch} (встречается {count} раз)')
 
-              # ─── Проход 2: рисуем голубику на клетках этого размера ───
-              berries = 0
+              # ═══ 3. Определяем цвет фона (самый частый цвет клеток) ═══
+              cell_colors = Counter()
               for (x, y, w, h, fill) in rects_data:
-                  if (w, h) != cell_size:
-                      continue
-                  if not fill.startswith('#'):
-                      continue
-                  rgb = hex_to_rgb(fill)
-                  if not rgb:
-                      continue
-                  shade = pick_shade(*rgb)
-                  if not shade:
-                      continue
+                  if (w, h) == cell_size and fill.startswith('#'):
+                      cell_colors[fill] += 1
+
+              if not cell_colors:
+                  print(f'❌ {svg.name}: нет клеток с fill')
+                  continue
+
+              bg_color, bg_count = cell_colors.most_common(1)[0]
+              print(f'📊 {svg.name}: клетка={cw}×{ch}, фон={bg_color} ({bg_count} шт.)')
+              print(f'🎨 Всего цветов клеток: {len(cell_colors)}')
+              for c, n in cell_colors.most_common(5):
+                  print(f'    {c}  →  {n} шт.')
+
+              # ═══ 4. Все цвета КРОМЕ фона — это уровни активности ═══
+              active_colors = [c for c in cell_colors if c != bg_color]
+              active_colors.sort(key=lambda c: (
+                  lambda rgb: rgb[0]*0.299 + rgb[1]*0.587 + rgb[2]*0.114
+              )(hex_to_rgb(c) or (0,0,0)))
+
+              # ═══ 5. Сопоставляем: цвет → оттенок голубики ═══
+              color_map = {}
+              n = len(active_colors)
+              for i, c in enumerate(active_colors):
+                  if n == 1:
+                      color_map[c] = SHADES[3]
+                  else:
+                      idx = int(i / (n - 1) * (len(SHADES) - 1))
+                      color_map[c] = SHADES[idx]
+
+              print(f'🎯 Уровней активности: {n}')
+              for c, s in color_map.items():
+                  print(f'    {c} → {s}')
+
+              # ═══ 6. Рисуем голубику ═══
+              berries = []
+              for (x, y, w, h, fill) in rects_data:
+                  if (w, h) != cell_size: continue
+                  if fill not in color_map: continue
                   cx = x + w / 2
                   cy = y + h / 2
-                  r  = min(w, h) * 0.42
-                  txt = txt.replace(
-                      f'</svg>',
-                      berry_group(cx, cy, r, shade) + '\n</svg>'
-                  )
-                  berries += 1
+                  r  = min(w, h) * 0.45
+                  berries.append(berry_group(cx, cy, r, color_map[fill]))
 
-              print(f'🫐 {svg.name}: нарисовано голубик = {berries}')
+              # Вставляем ВСЕ голубики одним куском
+              if berries:
+                  txt = txt.replace('</svg>', '\n'.join(berries) + '\n</svg>')
 
-              # ─── Приглушаем оригинальные цвета клеток ───
-              def kill_color(h):
-                  hh = h.lstrip('#').lower()
-                  if len(hh) != 6: return h
-                  try:
-                      r, g, b = int(hh[0:2],16), int(hh[2:4],16), int(hh[4:6],16)
-                  except ValueError:
-                      return h
-                  lum = r*0.299 + g*0.587 + b*0.114
-                  if lum < 40:  return '#05070f'
-                  if lum < 80:  return '#0d0630'
-                  if lum < 130: return '#1a0a3d'
-                  if lum < 180: return '#2a1050'
-                  return '#3a1560'
+              print(f'🫐 {svg.name}: нарисовано голубик = {len(berries)}')
 
+              # ═══ 7. Приглушаем фон и клетки ═══
               for c in set(re.findall(r'#[0-9a-fA-F]{6}', txt)):
-                  txt = txt.replace(c, kill_color(c))
+                  cl = c.lower()
+                  if cl in color_map.values(): continue  # не трогаем голубику
+                  rgb = hex_to_rgb(c)
+                  if not rgb: continue
+                  lum = rgb[0]*0.299 + rgb[1]*0.587 + rgb[2]*0.114
+                  if lum < 40:  newc = '#05070f'
+                  elif lum < 80:  newc = '#0d0630'
+                  elif lum < 130: newc = '#1a0a3d'
+                  elif lum < 180: newc = '#2a1050'
+                  else:           newc = '#3a1560'
+                  txt = txt.replace(c, newc)
 
               svg.write_text(txt)
-              print(f'✅ {svg.name}: готово')
+              print(f'✅ {svg.name}: готово\n')
           EOF
 
       - name: Push to output
