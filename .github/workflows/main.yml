@@ -28,18 +28,23 @@ jobs:
       - name: Prepare dist
         run: mkdir -p dist
 
+      # ═══════════════════════════════════════════════
+      #  ЗМЕЙКА v8 — новый файл neon-snake.svg
+      # ═══════════════════════════════════════════════
       - name: Generate neon snake
         run: |
           python3 - << 'PYEOF'
           import random
 
-          # ════ НАСТРОЙКИ ════
-          COLS, ROWS = 53, 7
-          CELL, GAP  = 11, 2
-          SNAKE_LEN  = 8
-          NUM_DOTS   = 20
-          SPEED      = 0.10    # секунд на клетку (быстрее, т.к. путь длинный)
-          INVIS_SEC  = 35.0    # ← гриб невидим 35 секунд
+          # ═══════════════════════════════════════════
+          #  НАСТРОЙКИ
+          # ═══════════════════════════════════════════
+          COLS, ROWS = 53, 7       # размер сетки
+          CELL, GAP  = 11, 2       # размер клетки / отступ
+          SNAKE_LEN  = 8           # сегментов у змейки
+          NUM_DOTS   = 20          # сколько грибов на поле
+          SPEED      = 0.10        # сек на 1 клетку
+          INVIS_SEC  = 30.0        # сколько гриб невидим после съедания
 
           BG     = "#05070f"
           CELLBG = "#0a1122"
@@ -52,11 +57,12 @@ jobs:
           W = COLS * (CELL + GAP)
           H = ROWS * (CELL + GAP)
 
-          # ════ ЗМЕЙКА ОБХОДИТ ВСЁ ПОЛЕ (построчно) ════
-          # Строка 0: слева → направо
-          # Строка 1: справа → налево
-          # Строка 2: слева → направо
-          # ... и т.д. — плавно, без разрывов
+          # ═══════════════════════════════════════════
+          #  ПУТЬ: BOUSTROPHEDON — все клетки поля
+          #  строка 0: слева → направо
+          #  строка 1: справа → налево
+          #  строка 2: слева → направо ... и т.д.
+          # ═══════════════════════════════════════════
           path = []
           for row in range(ROWS):
               if row % 2 == 0:
@@ -70,7 +76,9 @@ jobs:
           DUR = L * SPEED
           INVIS_FRAC = INVIS_SEC / DUR
 
-          # ════ 20 ГРИБОВ РАЗБРОСАНЫ ПО ВСЕМУ ПОЛЮ ════
+          # ═══════════════════════════════════════════
+          #  20 ГРИБОВ В ЛЮБОЙ КЛЕТКЕ ПОЛЯ
+          # ═══════════════════════════════════════════
           random.seed()
           dots = set()
           while len(dots) < NUM_DOTS:
@@ -85,6 +93,9 @@ jobs:
               for i, (c, r) in enumerate(path)
           )
 
+          # ═══════════════════════════════════════════
+          #  СБОРКА SVG
+          # ═══════════════════════════════════════════
           parts = [
               f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">',
               '<defs>',
@@ -103,6 +114,7 @@ jobs:
               f'<rect width="{W}" height="{H}" fill="{BG}"/>',
           ]
 
+          # сетка
           for col in range(COLS):
               for row in range(ROWS):
                   x = col * (CELL + GAP)
@@ -112,7 +124,9 @@ jobs:
                       f'rx="2" fill="{CELLBG}" stroke="#0a2a4d" stroke-width="0.5"/>'
                   )
 
-          # ════ ГРИБЫ ════
+          # ═══════════════════════════════════════════
+          #  ГРИБЫ с анимацией видимости
+          # ═══════════════════════════════════════════
           cell_time = {cell: i / L for i, cell in enumerate(path)}
           lead = (SNAKE_LEN - 1) / L
 
@@ -122,7 +136,8 @@ jobs:
               if (col, row) in cell_time:
                   t_tail = cell_time[(col, row)]
                   t_head = t_tail - lead
-                  if t_head < 0: t_head += 1.0
+                  if t_head < 0:
+                      t_head += 1.0
               else:
                   t_head = 0.5
 
@@ -146,7 +161,9 @@ jobs:
               )
               parts.append('</g>')
 
-          # ════ ЗМЕЙКА ════
+          # ═══════════════════════════════════════════
+          #  ЗМЕЙКА — голова впереди
+          # ═══════════════════════════════════════════
           for i in range(SNAKE_LEN):
               begin = -(SNAKE_LEN - 1 - i) * SPEED
               r = CELL / 2 - 0.5 if i == 0 else CELL / 2 - 2
@@ -161,11 +178,15 @@ jobs:
 
           parts.append('</svg>')
 
-          with open('dist/custom-snake.svg', 'w') as f:
+          # ═══════════════════════════════════════════
+          #  СОХРАНЯЕМ В НОВЫЙ ФАЙЛ (обход кеша)
+          # ═══════════════════════════════════════════
+          with open('dist/neon-snake.svg', 'w') as f:
               f.write('\n'.join(parts))
-          print(f'✅ Snake generated. Cells={L}, DUR={DUR:.1f}s, invis={INVIS_SEC}s')
+          print(f'✅ Neon snake v8 — cells={L}, dur={DUR:.1f}s, invis={INVIS_SEC}s')
           PYEOF
 
+      # ═══ ПАКМАН → ГОЛУБИКА ═══
       - name: Recolor Pacman to blueberry
         run: |
           python3 - << 'EOF'
