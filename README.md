@@ -51,8 +51,11 @@
 ## 🔗 Связаться со мной
 
 <p align="center">
-  <a href="https://t.me/demsk8"><img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white"/></a>
-  <a href="https://linkedin.com/in/ТВОЙ_НИК"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"/></a>
+  <a href="https://t.me/demsk8">
+    <img src="tg.jpg" alt="Telegram" width="60" style="margin: 0 10px; border-radius: 12px;" />
+  </a>
+  <img src="vkv.jpg" alt="ВКонтакте" width="60" style="margin: 0 10px; border-radius: 12px;" />
+  </a>
 </p>
 
 ---
