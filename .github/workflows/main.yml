@@ -16,7 +16,6 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      # ═══════════ ПАКМАН ═══════════
       - name: Generate pacman
         uses: abozanona/pacman-contribution-graph@main
         with:
@@ -30,7 +29,7 @@ jobs:
       - name: Create dist folder
         run: mkdir -p dist
 
-      # ═══════════ НЕОНОВАЯ ЗМЕЙКА С ГРИБАМИ ═══════════
+      # ═══════════ НЕОНОВАЯ ЗМЕЙКА С ГРИБАМИ v3 ═══════════
       - name: Generate neon snake with mushrooms
         run: |
           python3 - << 'PYEOF'
@@ -40,61 +39,73 @@ jobs:
           COLS, ROWS = 53, 7
           CELL, GAP  = 11, 2
           SNAKE_LEN  = 8
-          NUM_DOTS   = 90
-          SPEED      = 0.18   # сек на клетку (0.1 = быстро, 0.3 = медленно)
+          NUM_DOTS   = 20       # ← ТОЛЬКО 20 грибов
+          SPEED      = 0.18
 
-          BG_COLOR     = "#05070f"
-          CELL_COLOR   = "#0a1122"
-          MUSHROOM_CAP = "#00d4ff"   # шляпка гриба
-          MUSHROOM_STEM= "#66e6ff"   # ножка
-          MUSHROOM_DOT = "#ffffff"   # белые пятнышки
-          SNAKE_COLOR  = "#00d4ff"
-          HEAD_COLOR   = "#66e6ff"
+          BG_COLOR      = "#05070f"
+          CELL_COLOR    = "#0a1122"
+          MUSHROOM_CAP  = "#00d4ff"
+          MUSHROOM_STEM = "#66e6ff"
+          MUSHROOM_DOT  = "#ffffff"
+          SNAKE_COLOR   = "#00d4ff"
+          HEAD_COLOR    = "#66e6ff"
 
           W = COLS * (CELL + GAP)
           H = ROWS * (CELL + GAP)
 
-          # ═══ ПОСТРОЧНЫЙ ПУТЬ (плавный, без зигзагов) ═══
-          # строка 0: слева → направо
-          # строка 1: справа → налево
-          # строка 2: слева → направо ... и т.д.
+          # ═══ ПЛАВНЫЙ БОЛЬШОЙ КРУГ (по спирали) ═══
+          # Идём по внешнему периметру, потом по внутреннему — как круг
           path = []
-          for row in range(ROWS):
-              cols = range(COLS) if row % 2 == 0 else reversed(range(COLS))
-              for col in cols:
-                  path.append((col, row))
+          visited = set()
 
-          # Нормализованное время прихода головы в каждую клетку
+          def add_ring(r1, r2, c1, c2):
+              # верхняя строка слева → направо
+              for c in range(c1, c2 + 1):
+                  if (c, r1) not in visited:
+                      path.append((c, r1)); visited.add((c, r1))
+              # правая колонка сверху → вниз
+              for r in range(r1 + 1, r2 + 1):
+                  if (c2, r) not in visited:
+                      path.append((c2, r)); visited.add((c2, r))
+              # нижняя строка справа → налево
+              for c in range(c2 - 1, c1 - 1, -1):
+                  if (c, r2) not in visited:
+                      path.append((c, r2)); visited.add((c, r2))
+              # левая колонка снизу → вверх
+              for r in range(r2 - 1, r1, -1):
+                  if (c1, r) not in visited:
+                      path.append((c1, r)); visited.add((c1, r))
+
+          # Спираль: сужаемся к центру
+          top, bottom, left, right = 0, ROWS - 1, 0, COLS - 1
+          while top <= bottom and left <= right:
+              add_ring(top, bottom, left, right)
+              top += 1; bottom -= 1; left += 1; right -= 1
+
           cell_time = {cell: i / len(path) for i, cell in enumerate(path)}
           DUR = len(path) * SPEED
 
-          # ═══ РАНДОМНЫЕ ГРИБЫ ═══
+          # ═══ 20 ГРИБОВ ═══
           random.seed()
           dots = set()
           while len(dots) < NUM_DOTS:
-              dots.add((random.randint(0, COLS-1), random.randint(0, ROWS-1)))
+              dots.add((random.randint(0, COLS - 1), random.randint(0, ROWS - 1)))
 
           def xy(c, r):
               return c * (CELL + GAP) + CELL / 2, r * (CELL + GAP) + CELL / 2
 
-          # Путь змейки как SVG path
           path_str = " ".join(
               f'{"M" if i == 0 else "L"} {xy(c, r)[0]:.1f} {xy(c, r)[1]:.1f}'
               for i, (c, r) in enumerate(path)
           )
 
-          # ═══ СБОРКА SVG ═══
           parts = [
               f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">',
               '<defs>',
-              # Свечение
               '<filter id="glow" x="-100%" y="-100%" width="300%" height="300%">',
               '<feGaussianBlur stdDeviation="2.5" result="b"/>',
-              '<feMerge>',
-              '<feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/>',
-              '</feMerge>',
+              '<feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>',
               '</filter>',
-              # 🍄 Фигура гриба
               '<g id="mushroom">',
               f'<path d="M -4.5,1 A 4.5,4 0 0 1 4.5,1 Z" fill="{MUSHROOM_CAP}"/>',
               f'<circle cx="-2.2" cy="-1.5" r="0.8" fill="{MUSHROOM_DOT}"/>',
@@ -106,40 +117,36 @@ jobs:
               f'<rect width="{W}" height="{H}" fill="{BG_COLOR}"/>',
           ]
 
-          # Фон-сетка
           for col in range(COLS):
               for row in range(ROWS):
-                  x = col * (CELL + GAP)
-                  y = row * (CELL + GAP)
+                  x = col * (CELL + GAP); y = row * (CELL + GAP)
                   parts.append(
                       f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" '
                       f'rx="2" fill="{CELL_COLOR}" stroke="#0a2a4d" stroke-width="0.5"/>'
                   )
 
-          # 🍄 Грибы с анимацией исчезновения при съедании
+          # 🍄 Грибы: исчезают ровно в момент, когда змейка их ест,
+          # и через короткий промежуток «респавнятся»
           for (col, row) in dots:
               cx, cy = xy(col, row)
-              te = cell_time[(col, row)]
+              t_eat = cell_time[(col, row)]
+              t1 = max(0.001, t_eat - 0.001)
+              t2 = min(0.999, t_eat + 0.02)   # короткое окно невидимости
 
-              # Границы анимации: сначала виден, потом пропадает в момент te
-              t1 = max(0.001, te - 0.003)
-              t2 = min(0.999, te + 0.002)
-
-              parts.append(
-                  f'<g transform="translate({cx:.1f},{cy:.1f})" filter="url(#glow)">'
-              )
+              parts.append(f'<g transform="translate({cx:.1f},{cy:.1f})" filter="url(#glow)">')
               parts.append('<use href="#mushroom"/>')
               parts.append(
                   f'<animate attributeName="opacity" '
-                  f'values="1;1;0;0;1" '
+                  f'values="1;1;0;1;1" '
                   f'keyTimes="0;{t1:.4f};{t1:.4f};{t2:.4f};1" '
                   f'dur="{DUR:.2f}s" repeatCount="indefinite"/>'
               )
               parts.append('</g>')
 
-          # 🐍 Тело змейки (сегменты с задержкой)
+          # 🐍 Голова вперёд — ИСПРАВЛЕНО
           for i in range(SNAKE_LEN):
-              delay = -i * SPEED
+              # i=0 голова → самая «ранняя» позиция = самый отрицательный begin
+              delay = -(SNAKE_LEN - 1 - i) * SPEED
               opacity = max(0.25, 1 - i * 0.1)
               r = CELL / 2 - 0.5 if i == 0 else CELL / 2 - 1.5
               color = HEAD_COLOR if i == 0 else SNAKE_COLOR
@@ -154,11 +161,11 @@ jobs:
 
           with open('dist/custom-snake.svg', 'w') as f:
               f.write('\n'.join(parts))
-          print('✅ Neon snake with mushrooms generated')
+          print('✅ Neon snake generated')
           PYEOF
 
-      # ═══════════ ПЕРЕКРАСКА ПАКМАНА ═══════════
-      - name: Recolor Pacman
+      # ═══════════ ПЕРЕКРАСКА ПАКМАНА → ГОЛУБИКА ═══════════
+      - name: Recolor Pacman to blueberry
         run: |
           python3 - << 'EOF'
           import re
@@ -169,29 +176,28 @@ jobs:
               r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
               return r * 0.299 + g * 0.587 + b * 0.114
 
-          def to_neon(hex_color):
+          def to_blueberry(hex_color):
               h = hex_color.lstrip('#').lower()
+              # Белый оставляем для глаз
               if h in ('ffffff', 'fefefe', 'fdfdfd', 'f0f0f0'):
                   return '#' + h
-              if brightness(h) < 15:
-                  return '#05070f'
               b = brightness(h)
-              if b < 60:  return '#0a1122'
-              if b < 110: return '#0a2a4d'
-              if b < 160: return '#0066cc'
-              if b < 210: return '#00aaff'
-              return '#00d4ff'
+              if b < 15:  return '#05070f'   # фон
+              if b < 60:  return '#0a1122'   # тёмный фон
+              if b < 110: return '#1a1a4e'   # тёмная голубика
+              if b < 160: return '#3b3b98'   # средняя голубика
+              if b < 210: return '#6666cc'   # светлая голубика
+              return '#8a8aff'               # яркая голубика (спелая)
 
           for svg in Path('dist').glob('pacman*.svg'):
               content = svg.read_text()
               colors = set(re.findall(r'#[0-9a-fA-F]{6}', content))
               for c in colors:
-                  content = content.replace(c, to_neon(c))
+                  content = content.replace(c, to_blueberry(c))
               svg.write_text(content)
-              print(f'✅ Recolored: {svg.name}')
+              print(f'✅ Blueberry: {svg.name}')
           EOF
 
-      # ═══════════ ПУБЛИКАЦИЯ ═══════════
       - name: Push to output
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
