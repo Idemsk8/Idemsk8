@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <!-- Градиент для корпуса бомбы -->
+    <radialGradient id="bombBody" cx="35%" cy="30%" r="70%">
+      <stop offset="0%"   stop-color="#2a3a5c"/>
+      <stop offset="60%"  stop-color="#0a1122"/>
+      <stop offset="100%" stop-color="#05070f"/>
+    </radialGradient>
+
+    <!-- Неоновое свечение -->
+    <filter id="neon" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Свечение искры -->
+    <filter id="sparkGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Фоновая пульсация -->
+  <circle cx="100" cy="110" r="70" fill="none"
+          stroke="#00d4ff" stroke-width="1" opacity="0.4">
+    <animate attributeName="r" values="60;85;60" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Корпус бомбы с пульсацией неона -->
+  <circle cx="100" cy="110" r="55" fill="url(#bombBody)"
+          stroke="#00d4ff" stroke-width="2" filter="url(#neon)">
+    <animate attributeName="stroke-opacity"
+             values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Блик на корпусе -->
+  <ellipse cx="80" cy="90" rx="15" ry="10" fill="#ffffff" opacity="0.15"/>
+
+  <!-- Фитиль -->
+  <path d="M 130 70 Q 145 45 160 50" stroke="#8a6d3b" stroke-width="5"
+        fill="none" stroke-linecap="round"/>
+
+  <!-- Искра на конце фитиля -->
+  <g filter="url(#sparkGlow)">
+    <circle cx="160" cy="50" r="4" fill="#ffd93d">
+      <animate attributeName="r" values="3;6;3" dur="0.4s" repeatCount="indefinite"/>
+      <animate attributeName="fill"
+               values="#ffd93d;#ff9a3c;#ff2d6f;#ffd93d" dur="1.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="160" cy="50" r="8" fill="#ff9a3c" opacity="0.4">
+      <animate attributeName="r" values="6;12;6" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;0;0.6" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Частицы-искры разлетаются -->
+  <circle cx="160" cy="50" r="2" fill="#ffd93d">
+    <animate attributeName="cx" values="160;185;190" dur="1s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="50;30;15" dur="1s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1;0.5;0" dur="1s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="160" cy="50" r="2" fill="#ff9a3c">
+    <animate attributeName="cx" values="160;140;130" dur="1.2s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="50;25;10" dur="1.2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1;0.5;0" dur="1.2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Текст под бомбой с мерцанием -->
+  <text x="100" y="190" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="14"
+        font-weight="700" letter-spacing="2" fill="#00d4ff"
+        filter="url(#neon)">
+    ИГРАТЬ
+    <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
+  </text>
+
+</svg>
