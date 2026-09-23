@@ -96,26 +96,22 @@
   <img src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff" />
 </h2>
 
+<!-- 🎮 Пакман -->
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" 
             srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg">
     <source media="(prefers-color-scheme: light)" 
             srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg">
-    <img alt="pacman contribution graph" 
+    <img alt="pacman" 
          src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg">
   </picture>
 </p>
-<!-- 🐍 Неоновая змейка -->
+
+<!-- 🐍 Неоновая змейка (кастомная, плавная) -->
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" 
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/snake-dark.svg">
-    <source media="(prefers-color-scheme: light)" 
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/snake.svg">
-    <img alt="snake" 
-         src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/snake.svg">
-  </picture>
+  <img alt="neon snake" width="100%"
+       src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/custom-snake.svg">
 </p>
 <!-- 📊 Запасной график вкладов (если что-то не сработает) -->
 <p align="center">
