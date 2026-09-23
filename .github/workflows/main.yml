@@ -16,28 +16,110 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      # ═══════════════════════════════════════
-      # 🎮 ПАКМАН
-      # ═══════════════════════════════════════
+      # ═══════════ ПАКМАН ═══════════
       - name: generate pacman-contribution-graph.svg
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
 
-      # ═══════════════════════════════════════
-      # 🐍 ЗМЕЙКА (неоновая)
-      # ═══════════════════════════════════════
-      - name: generate snake.svg
-        uses: Platane/snk/svg-only@v3
+      # ═══════════ КАСТОМНАЯ ЗМЕЙКА ═══════════
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          github_user_name: ${{ github.repository_owner }}
-          outputs: |
-            dist/snake.svg?color_snake=#00d4ff&color_dots=#05070f,#0a2a4d,#0066cc,#00aaff,#00d4ff
-            dist/snake-dark.svg?color_snake=#00d4ff&color_dots=#05070f,#0a2a4d,#0066cc,#00aaff,#00d4ff
+          python-version: '3.11'
 
-      # ═══════════════════════════════════════
-      # 🎨 ПЕРЕКРАСКА ПАКМАНА В НЕОН
-      # ═══════════════════════════════════════
+      - name: Create dist folder
+        run: mkdir -p dist
+
+      - name: Generate custom neon snake
+        run: |
+          python3 - << 'PYEOF'
+          import random
+
+          # ═══ НАСТРОЙКИ ═══
+          COLS, ROWS = 53, 7            # размер поля
+          CELL, GAP = 11, 2             # размер клетки и отступ
+          SNAKE_LEN = 8                 # длина змейки (сегментов)
+          NUM_DOTS = 120                # сколько точек
+          SPEED = 0.15                  # секунд на одну клетку
+          BG_COLOR    = "#05070f"       # фон
+          CELL_COLOR  = "#0a1122"       # клетки
+          DOT_COLOR   = "#00aaff"       # точки
+          SNAKE_COLOR = "#00d4ff"       # змейка
+          HEAD_COLOR  = "#66e6ff"       # голова
+
+          W = COLS * (CELL + GAP)
+          H = ROWS * (CELL + GAP)
+
+          # ═══ ПЛАВНЫЙ ЗМЕИНЫЙ ПУТЬ (змейкой — заполняет все клетки) ═══
+          path = []
+          for col in range(COLS):
+              rows_order = range(ROWS) if col % 2 == 0 else reversed(range(ROWS))
+              for row in rows_order:
+                  path.append((col, row))
+
+          # ═══ РАНДОМНЫЕ ТОЧКИ ═══
+          random.seed()
+          dots = set()
+          while len(dots) < NUM_DOTS:
+              dots.add((random.randint(0, COLS - 1), random.randint(0, ROWS - 1)))
+
+          def xy(c, r):
+              return c * (CELL + GAP) + CELL / 2, r * (CELL + GAP) + CELL / 2
+
+          # ═══ SVG-ПУТЬ ═══
+          path_str = " ".join(
+              f'{"M" if i == 0 else "L"} {xy(c, r)[0]:.1f} {xy(c, r)[1]:.1f}'
+              for i, (c, r) in enumerate(path)
+          )
+
+          DUR = len(path) * SPEED
+
+          # ═══ СБОРКА SVG ═══
+          parts = [
+              f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">',
+              '<defs>',
+              '<filter id="glow" x="-100%" y="-100%" width="300%" height="300%">',
+              '<feGaussianBlur stdDeviation="3" result="b"/>',
+              '<feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>',
+              '</filter>',
+              '<radialGradient id="dotGlow"><stop offset="0%" stop-color="#00d4ff" stop-opacity="1"/><stop offset="100%" stop-color="#00aaff" stop-opacity="0.3"/></radialGradient>',
+              '</defs>',
+              f'<rect width="{W}" height="{H}" fill="{BG_COLOR}"/>',
+          ]
+
+          # Клетки
+          for col in range(COLS):
+              for row in range(ROWS):
+                  x = col * (CELL + GAP)
+                  y = row * (CELL + GAP)
+                  parts.append(f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" rx="2" fill="{CELL_COLOR}" stroke="#0a2a4d" stroke-width="0.5"/>')
+
+          # Точки (рандомные)
+          for (col, row) in dots:
+              cx, cy = xy(col, row)
+              parts.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="1.5" fill="{DOT_COLOR}" opacity="0.85"/>')
+
+          # Змейка — сегменты с задержкой (голова впереди)
+          for i in range(SNAKE_LEN):
+              delay = -i * SPEED
+              opacity = max(0.2, 1 - i * 0.1)
+              r = CELL / 2 - 0.5 if i == 0 else CELL / 2 - 1.5
+              color = HEAD_COLOR if i == 0 else SNAKE_COLOR
+              parts.append(
+                  f'<circle r="{r}" fill="{color}" opacity="{opacity}" filter="url(#glow)">'
+                  f'<animateMotion dur="{DUR:.2f}s" repeatCount="indefinite" begin="{delay:.2f}s" path="{path_str}"/>'
+                  f'</circle>'
+              )
+
+          parts.append('</svg>')
+
+          with open('dist/custom-snake.svg', 'w') as f:
+              f.write('\n'.join(parts))
+          print('✅ Custom snake generated')
+          PYEOF
+
+      # ═══════════ ПЕРЕКРАСКА ПАКМАНА ═══════════
       - name: Recolor Pacman to blue neon
         run: |
           python3 - << 'EOF'
@@ -71,10 +153,8 @@ jobs:
               print(f'✅ Recolored: {svg.name}')
           EOF
 
-      # ═══════════════════════════════════════
-      # 📤 ПУБЛИКАЦИЯ В ВЕТКУ output
-      # ═══════════════════════════════════════
-      - name: push SVGs to the output branch
+      # ═══════════ ПУБЛИКАЦИЯ ═══════════
+      - name: Push SVGs to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
           target_branch: output
