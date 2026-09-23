@@ -1,4 +1,4 @@
-name: Generate GitHub animations
+name: Generate Arcade Profile
 
 on:
   workflow_dispatch:
@@ -14,22 +14,384 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      # PAC-MAN
+
+      # =========================
+      # PAC-MAN — реальные коммиты
+      # =========================
       - name: Generate Pac-Man
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
+          games: "pacman"
+          player_style: "aggressive"
+          hide_month_labels: "true"
 
-      # SNAKE
-      - name: Generate Snake
-        uses: Platane/snk/svg-only@v3
-        with:
-          github_user_name: ${{ github.repository_owner }}
-          outputs: |
-            dist/github-snake.svg?color_snake=#00d4ff&color_dots=#05070f,#0a2940,#006b9c,#00aee8,#a0f0ff
-            dist/github-snake-dark.svg?palette=github-dark&color_snake=#00d4ff&color_dots=#05070f,#0a2940,#006b9c,#00aee8,#a0f0ff
 
-      # PUBLISH
+      # =========================
+      # SNAKE — отдельная аркадная анимация
+      # =========================
+      - name: Install Pillow
+        run: |
+          python3 -m pip install --quiet pillow
+
+
+      - name: Generate Arcade Snake
+        run: |
+          python3 << 'PY'
+          from PIL import Image, ImageDraw
+          import random
+          import math
+
+          random.seed()
+
+          # -------------------------
+          # Размер поля
+          # -------------------------
+          COLS = 48
+          ROWS = 7
+          CELL = 15
+
+          WIDTH = COLS * CELL
+          HEIGHT = ROWS * CELL
+
+          FRAMES = 90
+          FPS = 10
+
+          # -------------------------
+          # Цвета
+          # -------------------------
+          BG = "#05070f"
+          GRID = "#0a1122"
+
+          SNAKE = "#00d4ff"
+          HEAD = "#a0f0ff"
+
+          MUSHROOM_RED = "#7d4cff"
+          MUSHROOM_LIGHT = "#b88cff"
+          MUSHROOM_STEM = "#dffaff"
+
+          GLOW = "#123a55"
+
+          # -------------------------
+          # Старт змеи
+          # -------------------------
+          snake = [
+              (10, 3),
+              (9, 3),
+              (8, 3),
+              (7, 3),
+              (6, 3),
+          ]
+
+          directions = [
+              (1, 0),
+              (-1, 0),
+              (0, 1),
+              (0, -1),
+          ]
+
+          direction = (1, 0)
+
+          # -------------------------
+          # Грибы
+          # -------------------------
+          mushrooms = []
+
+          def free_position():
+              while True:
+                  pos = (
+                      random.randint(1, COLS - 2),
+                      random.randint(0, ROWS - 1)
+                  )
+
+                  if pos not in snake and pos not in mushrooms:
+                      return pos
+
+          for _ in range(7):
+              mushrooms.append(free_position())
+
+
+          # -------------------------
+          # Выбор направления
+          # -------------------------
+          def choose_direction():
+
+              global direction
+
+              possible = []
+
+              for dx, dy in directions:
+
+                  # Запрещаем мгновенный разворот
+                  if (dx, dy) == (-direction[0], -direction[1]):
+                      continue
+
+                  nx = snake[0][0] + dx
+                  ny = snake[0][1] + dy
+
+                  # Не даём слишком часто упираться в стену
+                  if nx < 0 or nx >= COLS:
+                      continue
+
+                  if ny < 0 or ny >= ROWS:
+                      continue
+
+                  possible.append((dx, dy))
+
+              if not possible:
+                  return
+
+              # Иногда меняем направление,
+              # чтобы движение было более хаотичным
+              if random.random() < 0.42:
+
+                  # Предпочитаем повороты
+                  turns = [
+                      d for d in possible
+                      if d != direction
+                  ]
+
+                  if turns:
+                      direction = random.choice(turns)
+                      return
+
+              # Иногда сохраняем направление
+              # для длинного прохода
+              direction = random.choice(possible)
+
+
+          # -------------------------
+          # Рисование гриба
+          # -------------------------
+          def draw_mushroom(draw, x, y):
+
+              px = x * CELL
+              py = y * CELL
+
+              cx = px + CELL // 2
+
+              # лёгкое свечение
+              draw.ellipse(
+                  (
+                      px + 1,
+                      py + 1,
+                      px + CELL - 1,
+                      py + CELL - 1
+                  ),
+                  fill=GLOW
+              )
+
+              # ножка
+              draw.rounded_rectangle(
+                  (
+                      px + 5,
+                      py + 7,
+                      px + 10,
+                      py + 13
+                  ),
+                  radius=2,
+                  fill=MUSHROOM_STEM
+              )
+
+              # шляпка
+              draw.ellipse(
+                  (
+                      px + 2,
+                      py + 2,
+                      px + CELL - 2,
+                      py + 10
+                  ),
+                  fill=MUSHROOM_RED
+              )
+
+              # блики
+              draw.ellipse(
+                  (
+                      px + 5,
+                      py + 4,
+                      px + 7,
+                      py + 6
+                  ),
+                  fill=MUSHROOM_LIGHT
+              )
+
+              draw.ellipse(
+                  (
+                      px + 9,
+                      py + 5,
+                      px + 11,
+                      py + 7
+                  ),
+                  fill=MUSHROOM_LIGHT
+              )
+
+
+          # -------------------------
+          # Кадры
+          # -------------------------
+          frames = []
+
+          for frame in range(FRAMES):
+
+              # иногда меняем направление
+              choose_direction()
+
+              head_x, head_y = snake[0]
+
+              nx = head_x + direction[0]
+              ny = head_y + direction[1]
+
+              # Отражение от границ
+              if nx < 0 or nx >= COLS:
+                  direction = (-direction[0], direction[1])
+                  nx = head_x + direction[0]
+
+              if ny < 0 or ny >= ROWS:
+                  direction = (direction[0], -direction[1])
+                  ny = head_y + direction[1]
+
+              new_head = (nx, ny)
+
+              snake.insert(0, new_head)
+
+              # Если съели гриб
+              if new_head in mushrooms:
+
+                  mushrooms.remove(new_head)
+
+                  # Новый гриб в случайном месте
+                  mushrooms.append(free_position())
+
+                  # Иногда немного увеличиваем змею
+                  if len(snake) < 9:
+                      snake.append(snake[-1])
+
+              else:
+                  snake.pop()
+
+
+              # -------------------------
+              # Создание кадра
+              # -------------------------
+              img = Image.new(
+                  "RGB",
+                  (WIDTH, HEIGHT),
+                  BG
+              )
+
+              draw = ImageDraw.Draw(img)
+
+              # сетка
+              for x in range(0, WIDTH, CELL):
+                  draw.line(
+                      (x, 0, x, HEIGHT),
+                      fill=GRID,
+                      width=1
+                  )
+
+              for y in range(0, HEIGHT, CELL):
+                  draw.line(
+                      (0, y, WIDTH, y),
+                      fill=GRID,
+                      width=1
+                  )
+
+
+              # грибы
+              for mushroom in mushrooms:
+                  draw_mushroom(
+                      draw,
+                      mushroom[0],
+                      mushroom[1]
+                  )
+
+
+              # хвост
+              for i, (x, y) in enumerate(reversed(snake)):
+
+                  px = x * CELL
+                  py = y * CELL
+
+                  inset = 3
+
+                  draw.rounded_rectangle(
+                      (
+                          px + inset,
+                          py + inset,
+                          px + CELL - inset,
+                          py + CELL - inset
+                      ),
+                      radius=4,
+                      fill=SNAKE
+                  )
+
+
+              # голова
+              hx, hy = snake[0]
+
+              px = hx * CELL
+              py = hy * CELL
+
+              draw.rounded_rectangle(
+                  (
+                      px + 2,
+                      py + 2,
+                      px + CELL - 2,
+                      py + CELL - 2
+                  ),
+                  radius=5,
+                  fill=HEAD
+              )
+
+              # глаза
+              eye_y = py + 5
+
+              draw.ellipse(
+                  (
+                      px + 4,
+                      eye_y,
+                      px + 6,
+                      eye_y + 2
+                  ),
+                  fill=BG
+              )
+
+              draw.ellipse(
+                  (
+                      px + 9,
+                      eye_y,
+                      px + 11,
+                      eye_y + 2
+                  ),
+                  fill=BG
+              )
+
+              frames.append(img)
+
+
+          # -------------------------
+          # GIF
+          # -------------------------
+          import os
+
+          os.makedirs("dist", exist_ok=True)
+
+          frames[0].save(
+              "dist/arcade-snake.gif",
+              save_all=True,
+              append_images=frames[1:],
+              duration=int(1000 / FPS),
+              loop=0,
+              optimize=True
+          )
+
+          print("Arcade Snake generated successfully.")
+          PY
+
+
+      # =========================
+      # ПУБЛИКАЦИЯ
+      # =========================
       - name: Publish
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
