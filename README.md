@@ -1,52 +1,130 @@
-<h1 align="center">Связь👋, меня зовут Эдем, добро пожаловать на мой гитхаб!</h1>
+<!-- ═══════════════════════════════════════════════
+     🎨 ШАПКА С АВАТАРОМ
+     ═══════════════════════════════════════════════ -->
+<div align="center">
 
-<p align="center">
-  <a href="https://github.com/ТВОЙ_НИК">
-    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&pause=1000&color=36BCF7&center=true&vCenter=true&width=500&lines=Backend+Developer;Python+%26+Go+Enthusiast;Always+learning+new+things" alt="Typing SVG" />
-  </a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/main/avatar.png">
+  <img src="https://github.com/Idemsk8.png" width="140" 
+       style="border-radius: 50%; border: 3px solid #00d4ff; 
+              box-shadow: 0 0 20px #00d4ff, 0 0 40px rgba(0,212,255,0.5);" />
+</picture>
+
+<h1>
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=32&pause=1000&color=00D4FF&center=true&vCenter=true&width=600&lines=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82%2C+%D1%8F+Idemsk8+%F0%9F%91%8B;Python+%C2%B7+Go+%C2%B7+Docker;Backend+Developer" 
+       alt="Typing SVG" />
+</h1>
+
+<p>
+  <img src="https://komarev.com/ghpvc/?username=Idemsk8&label=PROFILE+VIEWS&color=00d4ff&style=for-the-badge" />
+  <img src="https://img.shields.io/github/followers/Idemsk8?label=FOLLOWERS&style=for-the-badge&color=00d4ff&labelColor=05070f" />
 </p>
 
-<p align="center">
-  <img src="https://komarev.com/ghpvc/?username=ТВОЙ_НИК&label=Profile%20views&color=0e75b6&style=flat" alt="views" />
-  <img src="https://img.shields.io/github/followers/ТВОЙ_НИК?label=Followers&style=social" alt="followers" />
-</p>
+</div>
 
----
-
-## 🚀 Обо мне
-
-- 🔭 Сейчас работаю над **личным проектом**
-- 💬 Спроси меня о **Python, Go, Docker**
-- 📫 Как связаться: **edembekurov@mail.ru**
----
-
-## 🛠 Технологии и инструменты
-
-<p align="left">
-  <img src="https://skillicons.dev/icons?i=python,postgres,git,github,vscode" />
-</p>
-
----
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg">
-    <img alt="pacman contribution graph" src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg">
-  </picture>
-</p>
-
----
-
+<!-- ═══════════════════════════════════════════════
+     🎮 КНОПКА-БОМБА НА ИГРУ
+     ═══════════════════════════════════════════════ -->
 <p align="center">
   <a href="https://idemsk8.github.io/minesweeper/" target="_blank">
     <img src="bomb.svg" alt="Играть в Сапёра" width="180" />
   </a>
 </p>
 
----
+<!-- ═══════════════════════════════════════════════
+     📝 ОБО МНЕ
+     ═══════════════════════════════════════════════ -->
+<h2>
+  <img src="https://img.shields.io/badge/-ОБО_МНЕ-05070f?style=for-the-badge&labelColor=00d4ff" />
+</h2>
 
-## 🔗 Связаться со мной
+<table>
+  <tr>
+    <td>🔭 <b>Сейчас</b></td>
+    <td>Работаю над личным проектом</td>
+  </tr>
+  <tr>
+    <td>💬 <b>Спроси меня</b></td>
+    <td>Python · Go · Docker · PostgreSQL</td>
+  </tr>
+  <tr>
+    <td>📫 <b>Связаться</b></td>
+    <td><a href="mailto:edembekurov@mail.ru">edembekurov@mail.ru</a></td>
+  </tr>
+  <tr>
+    <td>⚡ <b>Факт</b></td>
+    <td>Люблю чистый код и тёмные темы</td>
+  </tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════
+     🛠 ТЕХНОЛОГИИ
+     ═══════════════════════════════════════════════ -->
+<h2>
+  <img src="https://img.shields.io/badge/-ТЕХНОЛОГИИ-05070f?style=for-the-badge&labelColor=00d4ff" />
+</h2>
+
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=python,go,docker,postgres,linux,git,github,vscode,bash,redis&theme=dark" />
+  </a>
+</p>
+
+<!-- ═══════════════════════════════════════════════
+     📊 СТАТИСТИКА (синий неон)
+     ═══════════════════════════════════════════════ -->
+<h2>
+  <img src="https://img.shields.io/badge/-СТАТИСТИКА-05070f?style=for-the-badge&labelColor=00d4ff" />
+</h2>
+
+<p align="center">
+  <img height="165"
+       src="https://github-readme-stats.vercel.app/api?username=Idemsk8&show_icons=true&hide_border=true&count_private=true&bg_color=05070f&title_color=00d4ff&icon_color=00d4ff&text_color=cfe9ff&border_color=00d4ff" />
+  <img height="165"
+       src="https://github-readme-stats.vercel.app/api/top-langs/?username=Idemsk8&layout=compact&hide_border=true&bg_color=05070f&title_color=00d4ff&text_color=cfe9ff&border_color=00d4ff" />
+</p>
+
+<p align="center">
+  <img src="https://streak-stats.demolab.com?user=Idemsk8&hide_border=true&background=05070f&ring=00d4ff&fire=00d4ff&currStreakLabel=00d4ff&sideLabels=cfe9ff&currStreakNum=00d4ff&dates=cfe9ff&sideNums=cfe9ff" />
+</p>
+
+<p align="center">
+  <img src="https://github-profile-trophy.vercel.app/?username=Idemsk8&theme=algolia&no-frame=true&no-bg=true&row=1&column=7&title=Stars,Followers,Commits,Repositories,PullRequest,Issues,Experience" />
+</p>
+
+<!-- ═══════════════════════════════════════════════
+     👾 ПАКМАН (уже перекрашен в неон)
+     ═══════════════════════════════════════════════ -->
+<h2>
+  <img src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff" />
+</h2>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" 
+            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg">
+    <source media="(prefers-color-scheme: light)" 
+            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg">
+    <img alt="pacman contribution graph" 
+         src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg">
+  </picture>
+</p>
+
+<!-- ═══════════════════════════════════════════════
+     🐍 ЗМЕЙКА (опционально)
+     ═══════════════════════════════════════════════ -->
+<!--
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/snake.svg" alt="snake" />
+</p>
+-->
+
+<!-- ═══════════════════════════════════════════════
+     🔗 СВЯЗАТЬСЯ СО МНОЙ
+     ═══════════════════════════════════════════════ -->
+<h2>
+  <img src="https://img.shields.io/badge/-СВЯЗАТЬСЯ_СО_МНОЙ-05070f?style=for-the-badge&labelColor=00d4ff" />
+</h2>
 
 <p align="center">
   <a href="https://t.me/demsk8">
@@ -57,8 +135,10 @@
   </a>
 </p>
 
----
 
+<!-- ═══════════════════════════════════════════════
+     🌊 ВОЛНА ВНИЗУ
+     ═══════════════════════════════════════════════ -->
 <p align="center">
-  <i>⭐️ From <a href="https://github.com/Idemsk8">Idemsk8</a></i>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=00d4ff&height=120&section=footer&text=Thanks%20for%20visiting!&fontSize=24&fontColor=05070f&fontAlignY=70" />
 </p>
