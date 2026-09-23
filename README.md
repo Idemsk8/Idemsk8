@@ -93,28 +93,21 @@
      👾 ПАКМАН (уже перекрашен в неон)
      ═══════════════════════════════════════════════ -->
      
-<h2>
-  <img src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff" />
-</h2>
-
-<!-- 🫐 Пакман с голубикой -->
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" 
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg?v=5">
-    <source media="(prefers-color-scheme: light)" 
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=5">
-    <img alt="pacman" 
-         src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=5">
-  </picture>
-</p>
-
-<!-- 🍄 Змейка с грибами -->
 <p align="center">
   <img alt="neon snake" width="100%"
-       src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/custom-snake.svg?v=5">
+       src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/custom-snake.svg?v=7">
 </p>
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)"
+            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg?v=7">
+    <source media="(prefers-color-scheme: light)"
+            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=7">
+    <img alt="pacman"
+         src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=7">
+  </picture>
+</p>
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
      ═══════════════════════════════════════════════ -->
