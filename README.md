@@ -92,79 +92,13 @@
 <!-- ═══════════════════════════════════════════════
      👾 ПАКМАН (уже перекрашен в неон)
      ═══════════════════════════════════════════════ -->
+## 🎮 МОИ КОММИТЫ
 
-<!-- ═══════════════════════════════════════════════
-     👾 МОИ КОММИТЫ
-     ═══════════════════════════════════════════════ -->
+<img src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg" width="100%" alt="Pac-Man contribution graph">
 
-<h2>
-  <img
-    src="https://img.shields.io/badge/-МОИ_КОММИТЫ-05070f?style=for-the-badge&labelColor=00d4ff"
-    alt="Мои коммиты"
-  />
-</h2>
+<br>
 
-
-<!-- ═══════════════════════════════════════════════
-     🫐 PACMAN + BLUEBERRY
-     ═══════════════════════════════════════════════ -->
-
-<p align="center">
-
-  <picture>
-
-    <source
-      media="(prefers-color-scheme: dark)"
-      srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg"
-    />
-
-    <source
-      media="(prefers-color-scheme: light)"
-      srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg"
-    />
-
-    <img
-      src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg"
-      alt="Pacman blueberry contribution graph"
-      width="100%"
-    />
-
-  </picture>
-
-</p>
-
-
-<p align="center">
-
-  <sub>
-    🫐 Pacman collects my blueberry commits
-  </sub>
-
-</p>
-
-
-<!-- ═══════════════════════════════════════════════
-     🐍 NEON SNAKE
-     ═══════════════════════════════════════════════ -->
-
-<p align="center">
-
-  <img
-    src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/neon-snake.svg"
-    alt="Neon Snake"
-    width="100%"
-  />
-
-</p>
-
-
-<p align="center">
-
-  <sub>
-    🐍 Neon Snake · 🍄 Mushroom Hunt
-  </sub>
-
-</p>
+<img src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/github-snake-dark.svg" width="100%" alt="GitHub contribution snake">
 
 <!-- ═══════════════════════════════════════════════
      🔗 СВЯЗАТЬСЯ СО МНОЙ
