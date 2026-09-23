@@ -100,18 +100,18 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)"
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg?v=10">
+            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph-dark.svg?v=11">
     <source media="(prefers-color-scheme: light)"
-            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=10">
+            srcset="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=11">
     <img alt="pacman"
-         src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=10">
+         src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/pacman-contribution-graph.svg?v=11">
   </picture>
 </p>
 
 <!-- 🐍 Неоновая змейка с грибами -->
 <p align="center">
   <img alt="neon snake" width="100%"
-       src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/neon-snake.svg?v=10">
+       src="https://raw.githubusercontent.com/Idemsk8/Idemsk8/output/neon-snake.svg?v=11">
 </p>
 
 
