@@ -193,28 +193,99 @@ jobs:
           import re
           from pathlib import Path
 
-          def lum(h):
-              h = h.lstrip('#')
-              r, g, b = int(h[0:2],16), int(h[2:4],16), int(h[4:6],16)
-              return r*0.299 + g*0.587 + b*0.114
+          # ═══════════════════════════════════════════════
+          #  ЗАМЕНА КЛЕТОК ВКЛАДОВ НА ГОЛУБИКУ
+          # ═══════════════════════════════════════════════
+          #  Логика:
+          #  1. Находим все <rect> — клетки графика вкладов
+          #  2. На каждую активную клетку (не фон) накладываем
+          #     голубику-кружок, нарисованный в SVG
+          # ═══════════════════════════════════════════════
 
-          def blueberry(h):
-              h = h.lstrip('#').lower()
-              if h in ('ffffff','fefefe','fdfdfd','f0f0f0','ebedf0','eeeeee'):
-                  return '#' + h
-              L = lum(h)
-              if L < 12:  return '#150726'
-              if L < 55:  return '#2d0f4f'
-              if L < 110: return '#5c1f9e'
-              if L < 175: return '#8c4df5'
-              return '#b380ff'
+          def berry_group(x, y, size, fill):
+              """SVG-группа: голубика в клетке."""
+              cx = x + size / 2
+              cy = y + size / 2
+              r  = size * 0.42
+              return (
+                  f'<g transform="translate({cx:.1f},{cy:.1f})">'
+                  f'<circle r="{r:.2f}" fill="{fill}" '
+                  f'stroke="#0d0630" stroke-width="0.6"/>'
+                  # блик сверху-слева
+                  f'<circle cx="{-r*0.35:.2f}" cy="{-r*0.35:.2f}" '
+                  f'r="{r*0.22:.2f}" fill="#ffffff" opacity="0.55"/>'
+                  # тёмная точка-«глазок» снизу (как у ягоды)
+                  f'<circle cx="0" cy="{r*0.25:.2f}" r="{r*0.15:.2f}" '
+                  f'fill="#0d0630" opacity="0.6"/>'
+                  f'</g>'
+              )
+
+          # Палитра оттенков голубики (по яркости вклада)
+          SHADES = {
+              'low':    '#3b1a5c',
+              'mid':    '#6b2fa0',
+              'high':   '#9c4de0',
+              'max':    '#c07aff',
+          }
+
+          # Определяем уровень по цвету
+          def pick_shade(hex_color):
+              h = hex_color.lstrip('#').lower()
+              if len(h) != 6: return None
+              r, g, b = int(h[0:2],16), int(h[2:4],16), int(h[4:6],16)
+              lum = r*0.299 + g*0.587 + b*0.114
+              if lum < 40:  return None                 # фон — пропускаем
+              if lum < 80:  return SHADES['low']
+              if lum < 130: return SHADES['mid']
+              if lum < 180: return SHADES['high']
+              return SHADES['max']
 
           for svg in Path('dist').glob('pacman*.svg'):
               txt = svg.read_text()
+
+              # Собираем дополнительные SVG-элементы (голубики)
+              berries = []
+
+              # Ищем все <rect ... fill="#XXXXXX" ... /> — клетки вкладов
+              rect_re = re.compile(
+                  r'<rect\s+[^>]*?x="([\d.]+)"\s+[^>]*?y="([\d.]+)"\s+'
+                  r'[^>]*?width="([\d.]+)"\s+[^>]*?height="([\d.]+)"\s+'
+                  r'[^>]*?fill="(#[0-9a-fA-F]{6})"',
+                  re.IGNORECASE
+              )
+
+              for m in rect_re.finditer(txt):
+                  x, y, w, h, fill = m.groups()
+                  x, y, w, h = float(x), float(y), float(w), float(h)
+                  # Клетки графика — примерно квадратные, от 8 до 14 px
+                  if not (7 < w < 15 and 7 < h < 15):
+                      continue
+                  shade = pick_shade(fill)
+                  if shade:
+                      berries.append(berry_group(x, y, w, shade))
+
+              if berries:
+                  # Вставляем голубики перед </svg>
+                  txt = txt.replace('</svg>', '\n'.join(berries) + '\n</svg>')
+
+              # Обесцвечиваем оригинальные клетки в фон
+              def kill_color(h):
+                  hh = h.lstrip('#').lower()
+                  if len(hh) != 6: return h
+                  r, g, b = int(hh[0:2],16), int(hh[2:4],16), int(hh[4:6],16)
+                  lum = r*0.299 + g*0.587 + b*0.114
+                  if lum < 40:  return '#05070f'
+                  if lum < 80:  return '#0d0630'
+                  if lum < 130: return '#1a0a3d'
+                  if lum < 180: return '#2a1050'
+                  return '#3a1560'
+
               for c in set(re.findall(r'#[0-9a-fA-F]{6}', txt)):
-                  txt = txt.replace(c, blueberry(c))
+                  txt = txt.replace(c, kill_color(c))
+
+              # Возвращаем цвет нашей голубике (её уже не трогаем)
               svg.write_text(txt)
-              print(f'✅ Blueberry: {svg.name}')
+              print(f'✅ Blueberry: {svg.name} — {len(berries)} berries')
           EOF
 
       - name: Push to output
