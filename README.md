@@ -106,7 +106,7 @@
 <a href="https://Idemsk8.github.io/Idemsk8/games/neon-road.html">
     <img
       src="./assets/neon-car-button.svg"
-      width="470"
+      width="460"
       alt="Start Neon Road"
     />
   </a>
@@ -114,7 +114,7 @@
 <a href="https://Idemsk8.github.io/Idemsk8/games/neon-invaders.html">
     <img
       src="./assets/neon-ship-button.svg"
-      width="300"
+      width="290"
       alt="Play Neon Invaders"
     />
   </a>
