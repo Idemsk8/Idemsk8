@@ -99,14 +99,14 @@
      ═══════════════════════════════════════════════ -->
 <a align="left">
   <a href="https://idemsk8.github.io/minesweeper/" target="_blank">
-    <img src="bomb.svg" alt="Играть в Сапёра" width="180" />
+    <img src="bomb.svg" alt="Играть в Сапёра" width="160" />
   </a>
 
      
 <a href="https://Idemsk8.github.io/Idemsk8/games/neon-road.html">
     <img
       src="./assets/neon-car-button.svg"
-      width="400"
+      width="370"
       alt="Start Neon Road"
     />
   </a>
@@ -114,7 +114,7 @@
 <a href="https://Idemsk8.github.io/Idemsk8/games/neon-invaders.html">
     <img
       src="./assets/neon-ship-button.svg"
-      width="270"
+      width="250"
       alt="Play Neon Invaders"
     />
   </a>
